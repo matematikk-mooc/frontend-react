@@ -1,0 +1,18 @@
+{
+    "extends": [
+        "stylelint-config-standard",
+        "stylelint-scss",
+        "@navikt/aksel-stylelint/recommended"
+    ],
+    "rules": {
+        "selector-class-pattern": null,
+        "aksel/no-class-override": null,
+        "import-notation": null,
+        "at-rule-no-unknown": [
+            true,
+            {
+                "ignoreAtRules": ["tailwind", "apply", "variants", "responsive", "screen"]
+            }
+        ]
+    }
+}

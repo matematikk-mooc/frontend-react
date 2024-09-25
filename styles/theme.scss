@@ -1,0 +1,43 @@
+body {
+    @apply navds-body-long;
+}
+
+h1 {
+    @apply navds-heading navds-heading--xlarge !mb-3;
+}
+
+h2 {
+    @apply navds-heading navds-heading--medium !mb-3;
+}
+
+h3 {
+    @apply navds-heading navds-heading--small !mb-2;
+}
+
+h4 {
+    @apply navds-heading navds-heading--xsmall !mb-2;
+}
+
+h5 {
+    @apply navds-heading navds-heading--xsmall !mb-2;
+}
+
+h6 {
+    @apply navds-heading navds-heading--xsmall !mb-2;
+}
+
+main p {
+    @apply navds-body-long !mb-6;
+}
+
+main a {
+    @apply text-udir-black underline hover-focus:no-underline;
+}
+
+main ul {
+    @apply navds-body-long list-inside list-disc pb-8 pl-5;
+}
+
+main ol {
+    @apply navds-body-long list-inside list-decimal pb-10 pl-5;
+}

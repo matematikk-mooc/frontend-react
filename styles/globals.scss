@@ -1,0 +1,28 @@
+@import 'tailwindcss/base';
+@import '@navikt/ds-css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import './theme.scss';
+
+html {
+    scroll-behavior: smooth;
+}
+
+:host,
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navds-modal__hide-header {
+    .navds-modal__header {
+        display: none;
+    }
+}
+
+.navds-accordion {
+    @apply mb-10 mt-8;
+
+    .navds-accordion__content {
+        @apply pb-4 pt-6;
+    }
+}
