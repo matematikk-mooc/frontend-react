@@ -19,7 +19,7 @@ function LoginIcon() {
 }
 
 function MobileNavigation({ id, className }: DefaultProps) {
-    const { t } = useTranslation();
+    const { t } = useTranslation(['common']);
     const [openState, setOpenState] = useState(false);
 
     const router = useRouter();

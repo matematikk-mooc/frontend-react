@@ -87,10 +87,10 @@ function LanguageSelector({ id, className, iconStack }: Props) {
 
                         <li>
                             <LanguageItem
-                                href={getTranslatedPath(templateName, 'sv')}
-                                locale="sv"
+                                href={getTranslatedPath(templateName, 'nn')}
+                                locale="nn"
                                 selectedLocale={localeName}
-                                title="SV"
+                                title="NN"
                                 onClick={() => setOpenState(false)}
                             />
                         </li>

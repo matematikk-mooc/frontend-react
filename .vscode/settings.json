@@ -8,7 +8,7 @@
     "editor.formatOnPaste": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "always"
+        "source.fixAll.eslint": "explicit"
     },
 
     "files.eol": "\n",
@@ -44,7 +44,7 @@
         "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
     },
     "[typescriptreact]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
     },
 
     "search.exclude": {
@@ -53,5 +53,8 @@
         "**/build": true,
         "**/coverage": true,
         "**/.next": true
+    },
+    "[dotenv]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
     }
 }

@@ -1,0 +1,54 @@
+{
+    "site_title": "Kompetanseportalen",
+
+    "500_title": "500 - Serverfeil",
+    "500_description": "Noko gikk gjekk gale på serveren. Ver vennleg å prøv igjen seinare, eller ta kontakt med oss om problemet held fram.",
+
+    "404_title": "404 - Sida finst ikkje",
+    "404_description": "Vi fann ikkje sida du leiter etter. Den kan vere fjerna eller endra. Prøv å gå tilbake til førre side eller gå til framsida.",
+
+    "useful_links_title": "Her er nokre nyttige lenkjer som kan hjelpe deg:",
+    "useful_links_home": "Heimeside/heimesida",
+    "useful_links_faq": "Ofte stilte spørsmål (FAQ)",
+    "useful_links_contact": "Kontakt oss",
+
+    "top_navigation_label": "Toppmeny",
+    "top_navigation_login": "Logg inn",
+    "top_navigation_login_label": "Gå til innloggingssida",
+    "top_navigation_frontpage_label": "Gå til framsida",
+
+    "mobile_navigation_title": "Meny",
+    "mobile_navigation_close_title": "Lukk",
+    "mobile_navigation_label": "Mobilmeny",
+    "mobile_navigation_open": "Opne mobilmeny",
+    "mobile_navigation_close": "Lukk mobilmeny",
+
+    "language_selector_label": "Vel språk",
+    "language_not_available": "Denne sida er ikkje tilgjengeleg på det valde språket. Nedanfor finn du originalinnhaldet på bokmål.",
+
+    "skip_links_main": "Gå til hovudinnhaldet",
+    "skip_links_footer": "Gå til botnen av sida",
+
+    "breadcrumbs_you_are_here": "Du er her:",
+    "breadcrumbs_home": "Forside",
+    "breadcrumbs_contact": "Kontakt",
+    "breadcrumbs_privacy": "Personvern",
+    "breadcrumbs_about": "Om kompetanseportalen",
+
+    "scroll_to_top": "Til toppen",
+    "scroll_to_top_label": "Rull til toppen av sida",
+
+    "footer_udir_logo_label": "Opne udir.no i ei ny fane",
+    "footer_delivered_by": "Kompetansepakkane er levert av Utdanningsdirektoratet",
+    "footer_links_label": "Lenkjer til undersider",
+    "footer_links_faq": "Ofte stilte spørsmål (FAQ)",
+    "footer_links_about": "Om kompetanseportalen",
+    "footer_links_contact": "Kontakt oss",
+    "footer_sub_links_label": "Personvern og tilgjengelighetserklæring",
+    "footer_sub_links_privacy": "Personvernerklæring",
+    "footer_sub_links_accessibility": "Tilgjengelegheitserklæring:",
+    "footer_accessibility_nb": "Bokmål",
+    "footer_accessibility_nb_label": "Opne tilgjengelegheitserklæring på \"Bokmål\" i ny fane",
+    "footer_accessibility_nn": "Nynorsk",
+    "footer_accessibility_nn_label": "Opne tilgjengelegheitserklæring på \"Nynorsk\" i ny fane"
+}

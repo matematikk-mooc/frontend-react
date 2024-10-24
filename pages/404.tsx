@@ -6,7 +6,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import ErrorComponent from '@/shared/components/Error';
 import Default from '@/shared/layouts/Default';
 
-function PageNotFound() {
+function NotFound() {
     const { t } = useTranslation(['common']);
 
     return (
@@ -32,10 +32,11 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
     if (process.env.NODE_ENV !== 'production') await i18n?.reloadResources();
 
     return {
+        revalidate: 60,
         props: {
             ...(await serverSideTranslations(locale ?? 'nb', ['common'], null)),
         },
     };
 };
 
-export default PageNotFound;
+export default NotFound;

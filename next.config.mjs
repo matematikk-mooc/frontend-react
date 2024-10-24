@@ -1,6 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { withSentryConfig } from '@sentry/nextjs';
 import nextPwa from 'next-pwa';
 
 import { generateRewrites } from './locales.mjs';
@@ -24,6 +25,9 @@ const nextConfig = {
     reactStrictMode: true,
     trailingSlash: true,
     swcMinify: true,
+    publicRuntimeConfig: {
+        SENTRY_DSN: process.env.SENTRY_DSN,
+    },
     experimental: {
         optimizePackageImports: ['@navikt/ds-react', '@navikt/aksel-icons'],
         esmExternals: 'loose',
@@ -36,4 +40,16 @@ const nextConfig = {
     },
 };
 
-export default withPWA(nextConfig);
+export default withSentryConfig(withPWA(nextConfig), {
+    org: 'ajxudir',
+    project: 'javascript-nextjs',
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    reactComponentAnnotation: {
+        enabled: true,
+    },
+    tunnelRoute: '/logs/',
+    hideSourceMaps: true,
+    disableLogger: true,
+    automaticVercelMonitors: false,
+});
