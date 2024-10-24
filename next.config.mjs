@@ -43,13 +43,18 @@ const nextConfig = {
 export default withSentryConfig(withPWA(nextConfig), {
     org: 'ajxudir',
     project: 'javascript-nextjs',
-    silent: !process.env.CI,
-    widenClientFileUpload: true,
-    reactComponentAnnotation: {
-        enabled: true,
-    },
     tunnelRoute: '/logs/',
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+
+    silent: false,
+    telemetry: false,
+    widenClientFileUpload: true,
     hideSourceMaps: true,
     disableLogger: true,
     automaticVercelMonitors: false,
+    disableServerWebpackPlugin: !process.env.CI,
+    disableClientWebpackPlugin: !process.env.CI,
+    reactComponentAnnotation: {
+        enabled: true,
+    },
 });
