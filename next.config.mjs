@@ -26,6 +26,7 @@ const nextConfig = {
     trailingSlash: true,
     swcMinify: true,
     publicRuntimeConfig: {
+        APP_ENV: process.env.APP_ENV,
         SENTRY_DSN: process.env.SENTRY_DSN,
     },
     experimental: {
@@ -41,8 +42,8 @@ const nextConfig = {
 };
 
 export default withSentryConfig(withPWA(nextConfig), {
-    org: 'ajxudir',
-    project: 'javascript-nextjs',
+    org: 'udir',
+    project: 'kpas-frontend-react',
     tunnelRoute: '/logs/',
     authToken: process.env.SENTRY_AUTH_TOKEN,
 

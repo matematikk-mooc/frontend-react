@@ -35,6 +35,8 @@ jobs:
         runs-on: ubuntu-latest
         env:
             PORT: ${{ vars.PORT }}
+            APP_ENV: ${{ vars.APP_ENV }}
+            SENTRY_DSN: ${{ vars.SENTRY_DSN }}
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         steps:
             - name: Checkout code

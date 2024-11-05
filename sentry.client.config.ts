@@ -23,11 +23,35 @@ Sentry.init({
             isNameRequired: false,
             isEmailRequired: false,
 
-            triggerLabel: 'Feedback',
+            triggerLabel: '',
+            triggerAriaLabel: 'Gi tilbakemelding',
+            submitButtonLabel: 'Send',
+            cancelButtonLabel: 'Avbryt',
+            confirmButtonLabel: 'Send',
+            addScreenshotButtonLabel: 'Legg til skjermbilde',
+            removeScreenshotButtonLabel: 'Fjern skjermbilde',
+
+            formTitle: 'Tilbakemelding',
+            nameLabel: 'Navn',
+            namePlaceholder: 'Ditt navn',
+            emailLabel: 'E-post',
+            emailPlaceholder: 'Din e-post',
+            isRequiredLabel: '(påkrevd)',
+            messageLabel: 'Melding',
+            messagePlaceholder: 'Skriv inn din tilbakemelding her',
+            successMessageText: 'Takk for tilbakemeldingen!',
+
+            themeLight: {
+                background: '#ffffff',
+            },
+            themeDark: {
+                background: '#303030',
+            },
         }),
     ],
 
     debug: false,
+    environment: publicRuntimeConfig.ENVIRONMENT,
     dsn: publicRuntimeConfig.SENTRY_DSN,
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1,

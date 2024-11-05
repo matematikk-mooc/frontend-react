@@ -1,5 +1,86 @@
 {
-    "page_title": "Personvern",
+    "page_title": "Personvernerklæring",
     "page_description": "Her finner du informasjon om hvordan personopplysningene dine behandles når du bruker Kompetanseportalen.",
-    "title": "Personvernerklæring"
+    "content": {
+        "001_p": "Kompetanseportalen bruker informasjonskapsler for å forbedre brukeropplevelsen, blant annet ved å huske språket du har valgt. De fleste nettlesere aksepterer automatisk informasjonskapsler, men du kan selv endre innstillingene for å blokkere eller tillate dem.",
+        "002_h2": "Vanlige spørsmål om behandling av personopplysninger",
+
+        "003_faq": {
+            "001": {
+                "title": "Hvordan registrerer jeg meg, og hvilke opplysninger behandles?",
+                "001_p": "Du kan registrere deg ved å bruke Feide-pålogging eller ved å oppgi navn og e-post. Ved bruk av Feide kan følgende personopplysninger bli behandlet:",
+                "002_ul": {
+                    "001_p": "Fult navn",
+                    "002_p": "Navn og ID for vertsorganisasjon",
+                    "003_p": "Organisasjonsnummer",
+                    "004_p": "E-postadresse og mobilnummer",
+                    "005_p": "Foretrukket språk",
+                    "006_p": "Sted"
+                },
+                "003_p": "Hvis du registrerer deg med navn og e-post, vil følgende opplysninger bli behandlet:",
+                "004_ul": {
+                    "001_p": "Fult navn",
+                    "002_p": "E-postadresse",
+                    "003_p": "Domenenavnet knyttet til e-posten (f.eks. arbeidsgivers domene)"
+                },
+                "005_p": "Dette er nødvendig for å sikre sikker innlogging til plattformen. Les mer:",
+                "006_a": "Feides personvernerklæring"
+            },
+            "002": {
+                "title": "Hvilke personopplysninger behandles når jeg bruker kompetansepakker?",
+                "001_p": "Formålet med å behandle personopplysninger i Kompetanseportalen er å sørge for at du kan gjennomføre pakkene og få den kompetanseheving de gir. Følgende opplysninger kan bli lagret:",
+                "002_ul": {
+                    "001_p": "Svar på oppgaver og aktiviteter",
+                    "002_p": "Status for gjennomføring (fullført, delvis fullført eller ikke påbegynt)",
+                    "003_p": "Tidsbruk og innloggingsdetaljer"
+                },
+                "003_p": "Informasjonen er kun tilgjengelig for deg og Utdanningsdirektoratet eller deres leverandører. I enkelte tilfeller kan du dele svarene dine med andre, f.eks. gjennom «hverandrevurdering» eller tilbakemelding fra fagansvarlige."
+            },
+            "003": {
+                "title": "Hvordan fungerer diskusjonsforumene på plattformen?",
+                "001_p": "Kompetanseportalen inneholder diskusjonsforum hvor brukere kan kommunisere med hverandre. Disse forumene er åpne for alle registrerte brukere."
+            },
+            "004": {
+                "title": "Hva slags statistikk lages om bruken av kompetansepakkene?",
+                "001_p": "Utdanningsdirektoratet samler anonym statistikk om:",
+                "002_ul": {
+                    "001_p": "Antall brukere som har besøkt en kompetansepakke",
+                    "002_p": "Hvor mange som har registrert seg i en kompetansepakke, og hvilken rolle de har og hvilken gruppe de er i"
+                },
+                "003_p": "Denne statistikken er offentlig, men er anonymisert for å hindre at enkeltpersoner kan gjenkjennes. Utdanningsdirektoratet kan også bruke e-post for å kontakte registrerte brukere med oppdateringer eller forespørsler om evalueringer av kompetansepakkene."
+            },
+            "005": {
+                "title": "Hva er det rettslige grunnlaget for behandlingen av personopplysninger?",
+                "001_h3": "Registrering og innlogging",
+                "002_p": "Behandlingen av personopplysninger i forbindelse med registrering og innlogging er basert på personvernforordningen artikkel 6 nr. 1 bokstav f. Dette gir Utdanningsdirektoratet rett til å behandle opplysninger for å sikre plattformens sikkerhet.",
+                "003_h3": "Bruk av kompetansepakker",
+                "004_p": "Personopplysninger som behandles når du bruker kompetansepakkene, er basert på personvernforordningen artikkel 6 nr. 1 bokstav e, der oppdragsbrev fra Kunnskapsdepartementet fungerer som rettslig grunnlag."
+            },
+            "006": {
+                "title": "Hvem er behandlingsansvarlig?",
+                "001_p": "Utdanningsdirektoratet er behandlingsansvarlig for alle personopplysninger knyttet til Kompetanseportalen, bortsett fra Feide-data, hvor vertsorganisasjonen har ansvaret. Utdanningsdirektoratet har også en databehandleravtale med UNIT, som drifter plattformen teknisk."
+            },
+            "007": {
+                "title": "Hvor lenge lagres personopplysningene mine?",
+                "001_p": "Personopplysningene dine slettes hvis du ikke har logget inn på plattformen på tre år. Du kan når som helst be om å få slettet brukerkontoen din og innholdet du har lastet opp ved å kontakte",
+                "a_001": "kompetansesupport@udir.no"
+            },
+            "008": {
+                "title": "Hvilke rettigheter har jeg som en bruker?",
+                "001_p": "Som bruker har du rett til:",
+                "002_ul": {
+                    "001_p": "Innsyn i hvilke opplysninger som er lagret om deg",
+                    "002_p": "Retting av feilaktige opplysninger",
+                    "003_p": "Sletting av personopplysninger, der dette er mulig"
+                },
+                "003_p": "Du kan utøve disse rettighetene ved å kontakte"
+            }
+        },
+
+        "004_h2": "Klage",
+        "005_p": {
+            "001": "Hvis du mener at vi behandler personopplysninger i strid med lovgivningen, kan du kontakte vårt personvernombud på",
+            "002": "eller klage til Datatilsynet. Du finner kontaktinformasjon her: "
+        }
+    }
 }

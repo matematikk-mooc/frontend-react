@@ -1,5 +1,85 @@
 {
-    "page_title": "Personvern",
+    "page_title": "Personvernerklæring",
     "page_description": "Her finn du informasjon om korleis personopplysningane dine blir behandla når du bruker Kompetanseportalen.",
-    "title": "Personvernerklæring"
+    "content": {
+        "001_p": "Kompetanseportalen bruker informasjonskapslar for å forbetre brukaropplevinga, mellom anna ved å hugse språket du har valt. Dei fleste nettlesarane aksepterer automatisk informasjonskapslar, men du kan sjølv endre instillingane for å blokkere eller tillate dei.",
+        "002_h2": "Vanlege spørsmål om behandling av personopplysningar",
+
+        "003_faq": {
+            "001": {
+                "title": "Korleis registrerer eg meg, og kva for opplysningar blir behandla?",
+                "001_p": "Du kan registrere deg ved å bruke Feide-pålogging eller ved å oppgi namn og e-post. Ved bruk av Feide kan følgande personopplysningar bli behandla:",
+                "002_ul": {
+                    "001_p": "Fullt namn",
+                    "002_p": "Namn og ID for vertsorganisasjonen",
+                    "003_p": "Organisasjonsnummer",
+                    "004_p": "E-postadresse og mobilnummer",
+                    "005_p": "Føretrekt språk",
+                    "006_p": "Stad"
+                },
+                "003_p": "Hvis du registrerer deg med namn og epost, vil følgande opplysningar bli behandla:",
+                "004_ul": {
+                    "001_p": "Fullt namn",
+                    "002_p": "E-postadresse",
+                    "003_p": "Domenenamnet knytt til e-posten (t.d. arbeidsgivaren sitt domene)"
+                },
+                "005_p": "Dette er nødvendig for å sikre sikker innlogging til plattforma. Les meir:",
+                "006_a": "Feide si personvernerklæring"
+            },
+            "002": {
+                "title": "Kva for personopplysningar blir behandla når eg bruker kompetansepakkar?",
+                "001_p": "Formålet med å behandle personopplysningar i Kompetanseportalen er å sørge for at du kan gjennomføre pakkane og få den kompetansehevinga dei gir. Følgande opplysningar kan bli lagra:",
+                "002_ul": {
+                    "001_p": "Svar på oppgåver og aktivitetar",
+                    "002_p": "Status for gjennomføring (fullført, delvis fullført eller ikkje påbyrja)",
+                    "003_p": "Tidsbruk og innloggingsdetaljar"
+                },
+                "003_p": "Informasjonen er kun tilgjengeleg for deg og Utdanningsdirektoratet eller leverandørane deira. I enkelte tilfelle kan du dele svara dine med andre, t.d. gjennom «kvarandrevurdering» eller tilbakemelding frå fagansvarlege."
+            },
+            "003": {
+                "title": "Korleis fungerer diskusjonsforuma på plattforma?",
+                "001_p": "Kompetanseportalen inneheld diskusjonsforum der brukarar kan kommunisere med kvarandre. Desse foruma er opne for alle registrerte brukarar."
+            },
+            "004": {
+                "title": "Kva slags statistikk blir laga om bruken av kompetansepakkane?",
+                "001_p": "Utdanningsdirektoratet samlar anonym statistikk om:",
+                "002_ul": {
+                    "001_p": "Tala på brukarar som har besøkt ein kompetansepakke",
+                    "002_p": "Kor mange som har registrert seg i ein kompetansepakke, og kva slags rolle dei har og kva gruppe dei er i"
+                },
+                "003_p": "Denne statistikken er offentleg, men den er anonymisert for å hindre at enkeltpersonar kan kjennast igjen. Utdanningsdirektoratet kan også bruke e-post for å kontakte registrerte brukarar med oppdateringar eller førespurnadar om evalueringar av kompetansepakkane."
+            },
+            "005": {
+                "title": "Kva er det rettslege grunnlaget for behandling av personopplysningar?",
+                "001_h3": "Registrering og innlogging",
+                "002_p": "Behandling av personopplysningar i samband med registrering og innlogging er basert på personvernforordninga artikkel 6 nr. 1 bokstav f. Dette gir Utdanningsdirektoratet rett til å behandle opplysningar for å sikre tryggleiken til plattforma.",
+                "003_h3": "Bruk av kompetansepakkar",
+                "004_p": "Personopplysningar som blir behandla når du bruker kompetansepakkane, er basert på personvernforordninga artikkel 6 nr. 1 bokstav e, der oppdragsbrev frå Kunnskapsdepartementet fungerer som rettsleg grunnlag."
+            },
+            "006": {
+                "title": "Kven er behandlingsansvarleg?",
+                "001_p": "Utdanningsdirektoratet er behandlingsansvarleg for alle personopplysningar knytt til Kompetanseportalen, bortsett frå Feide-data, der vertsorganisasjonen har ansvaret. Utdanningsdirektoratet har også ein databehandlaravtale med UNIT, som driftar plattforma teknisk."
+            },
+            "007": {
+                "title": "Kor lenge blir personopplysningane mine lagra?",
+                "001_p": "Personopplysningane dine blir sletta viss du ikkje har logga inn i plattforma på tre år. Du kan når som helst be om å få sletta brukarkontoen din og innhaldet du har lasta opp ved å kontakte"
+            },
+            "008": {
+                "title": "Kva slags rettar har eg som brukar?",
+                "001_p": "Som brukar har du rett til:",
+                "002_ul": {
+                    "001_p": "Innsyn i kva slags opplysningar som er lagra om deg",
+                    "002_p": "Retting av feilaktige opplysningar",
+                    "003_p": "Sletting av personopplysningar, der dette er mogleg"
+                },
+                "003_p": "Du kan utøve desse rettane ved å kontakte"
+            }
+        },
+
+        "004_h2": "Klage",
+        "005_p": {
+            "001": "Viss du meiner at vi behandlar personopplysningar i strid med lovgivinga, kan du kontakte personvernombudet vårt på",
+            "002": "eller klage til Datatilsynet. Du finn kontaktinformasjonen her:"
+        }
+    }
 }
