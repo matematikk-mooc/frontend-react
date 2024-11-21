@@ -56,5 +56,8 @@
     },
     "[dotenv]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "redhat.vscode-xml"
     }
 }

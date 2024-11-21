@@ -1,0 +1,36 @@
+on:
+    workflow_call:
+        inputs:
+            node_version:
+                type: string
+                description: 'Node.js version to use'
+                required: false
+        secrets: {}
+
+jobs:
+    test-lint:
+        name: Test - Lint
+        runs-on: ubuntu-latest
+        continue-on-error: true
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ inputs.node_version }}
+
+            - name: Cache pnpm packages
+              uses: actions/cache@v4
+              with:
+                  path: ~/.local/share/pnpm/store
+                  key: pnpm-cache
+                  restore-keys: |
+                      pnpm-
+
+            - name: Install dependencies
+              run: npm install -g pnpm && pnpm install --frozen-lockfile
+
+            - name: Run lint checks
+              run: pnpm run lint

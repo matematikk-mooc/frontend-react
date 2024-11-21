@@ -51,7 +51,7 @@ Sentry.init({
     ],
 
     debug: false,
-    environment: publicRuntimeConfig.ENVIRONMENT,
+    environment: publicRuntimeConfig.APP_ENV || 'development',
     dsn: publicRuntimeConfig.SENTRY_DSN,
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1,

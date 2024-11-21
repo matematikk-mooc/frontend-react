@@ -1,0 +1,45 @@
+name: Branch - Default
+
+on:
+    push:
+        branches-ignore:
+            - stage
+            - main
+
+jobs:
+    build-docker:
+        uses: ./.github/workflows/build-docker.yml
+        with:
+            force_build: ${{ vars.FORCE_BUILD_DOCKER == 'true' }}
+            build_args: |
+                APP_ENV=ci
+                SENTRY_DSN=${{ vars.SENTRY_DSN }}
+            docker_registry: ${{ vars.STAGE_DOCKER_REGISTRY }}
+            docker_username: ${{ vars.STAGE_DOCKER_USERNAME }}
+            docker_image: ${{ vars.DOCKER_IMAGE }}
+        secrets:
+            docker_password: ${{ secrets.STAGE_DOCKER_PASSWORD }}
+            sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+    test-lint:
+        needs: [build-docker]
+        uses: ./.github/workflows/test-lint.yml
+        with:
+            node_version: '20'
+
+    test-e2e:
+        needs: [build-docker]
+        uses: ./.github/workflows/test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/kontakt/'
+            runtime_env: |
+                APP_ENV=stage
+                SENTRY_DSN=${{ vars.SENTRY_DSN }}
+            docker_registry: ${{ vars.STAGE_DOCKER_REGISTRY }}
+            docker_username: ${{ vars.STAGE_DOCKER_USERNAME }}
+            docker_image: ${{ vars.DOCKER_IMAGE }}
+        secrets:
+            docker_password: ${{ secrets.STAGE_DOCKER_PASSWORD }}
+            sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}

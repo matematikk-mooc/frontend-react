@@ -1,4 +1,12 @@
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
+
+ARG SENTRY_DSN
+ARG APP_ENV
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SENTRY_DSN=${SENTRY_DSN}
+ENV APP_ENV=${APP_ENV}
 
 WORKDIR /app
 
@@ -8,18 +16,20 @@ RUN apk add --no-cache ca-certificates && update-ca-certificates
 RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN NODE_ENV=development pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm run build
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) pnpm run build
 
 # ---
 
-FROM node:20-alpine as runner
+FROM node:20-alpine AS runner
 
-WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

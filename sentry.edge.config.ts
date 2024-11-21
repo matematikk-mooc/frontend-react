@@ -10,6 +10,7 @@ const { publicRuntimeConfig } = getConfig();
 
 Sentry.init({
     debug: false,
+    environment: publicRuntimeConfig.APP_ENV || 'development',
     dsn: publicRuntimeConfig.SENTRY_DSN,
     tracesSampleRate: 1,
 });
