@@ -65,3 +65,12 @@ jobs:
                         --container-registry-url https://${{ inputs.docker_registry }} \
                         --container-registry-user ${{ inputs.docker_username }} \
                         --container-registry-password ${{ secrets.docker_password }}
+
+            - name: Restart Azure App Service
+              uses: azure/cli@v2
+              with:
+                  inlineScript: |
+                      sleep 5
+                      az webapp restart \
+                        --name ${{ inputs.azure_app_service_name }} \
+                        --resource-group ${{ inputs.azure_resource_group }}
