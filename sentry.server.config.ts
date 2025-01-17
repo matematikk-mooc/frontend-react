@@ -5,11 +5,11 @@
 import * as Sentry from '@sentry/nextjs';
 import getConfig from 'next/config';
 
-const { publicRuntimeConfig } = getConfig();
+const { publicRuntimeConfig } = getConfig() || {};
 
 Sentry.init({
     debug: false,
-    environment: publicRuntimeConfig.APP_ENV || 'development',
+    environment: publicRuntimeConfig.APP_ENV,
     dsn: publicRuntimeConfig.SENTRY_DSN,
     tracesSampleRate: 1,
 });

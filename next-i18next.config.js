@@ -5,7 +5,7 @@ const HttpBackend = require('i18next-http-backend/cjs');
 const LocalStorageBackend = require('i18next-localstorage-backend').default;
 
 const isBrowser = typeof window !== 'undefined';
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV !== 'production';
 
 /** @type {import('next-i18next').UserConfig} */
 const config = {

@@ -13,10 +13,6 @@ on:
                 type: string
                 description: 'Ping path to check application readiness'
                 required: true
-            runtime_env:
-                type: string
-                description: 'Multi-line environment variables (key=value)'
-                required: false
             docker_registry:
                 type: string
                 description: 'Docker registry URL'
@@ -29,14 +25,30 @@ on:
                 type: string
                 description: 'Docker image name'
                 required: true
+            app_env:
+                type: string
+                description: 'Application environment'
+                required: true
+            test_username:
+                type: string
+                description: 'Test username'
+                required: true
+            test_suite:
+                type: string
+                description: 'Test suite to run'
+                required: true
+            test_browser:
+                type: string
+                description: 'Test browser to use'
+                required: true
 
         secrets:
             docker_password:
                 description: 'Docker registry password'
                 required: true
-            sentry_auth_token:
-                description: 'Sentry auth token'
-                required: false
+            test_password:
+                description: 'Test password'
+                required: true
 
 jobs:
     test-e2e:
@@ -46,7 +58,16 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
+            - name: Set up Node.js for testing tools
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ inputs.node_version }}
+
+            - name: Ensure cache directories exist
+              run: mkdir -p /home/runner/.pnpm-store /home/runner/.cache/ms-playwright/.links
+
             - name: Login to Docker registry
+              if: ${{ inputs.test_suite == 'headless' }}
               uses: docker/login-action@v3
               with:
                   registry: ${{ inputs.docker_registry }}
@@ -54,27 +75,21 @@ jobs:
                   password: ${{ secrets.docker_password }}
 
             - name: Pull Docker image
-              run: |
-                  docker pull ${{ inputs.docker_registry }}/${{ inputs.docker_image }}:CI-${{ github.sha }}
+              if: ${{ inputs.test_suite == 'headless' }}
+              run: docker pull ${{ inputs.docker_registry }}/${{ inputs.docker_image }}:CI-${{ github.sha }}
 
             - name: Start application container
+              if: ${{ inputs.test_suite == 'headless' }}
               run: |
-                  RUNTIME_ENV_VARS=""
-                  if [ ! -z "${{ inputs.runtime_env }}" ]; then
-                    while IFS= read -r line; do
-                      RUNTIME_ENV_VARS="$RUNTIME_ENV_VARS -e \"$line\""
-                    done <<< "${{ inputs.runtime_env }}"
-                  fi
-
                   docker run --rm -d \
                       --name ${{ inputs.docker_image }} \
                       -e PORT=${{ inputs.port }} \
-                      $RUNTIME_ENV_VARS \
-                      -e SENTRY_AUTH_TOKEN="${{ secrets.sentry_auth_token }}" \
+                      -e APP_ENV=${{ inputs.app_env }} \
                       -p ${{ inputs.port }}:${{ inputs.port }} \
                       ${{ inputs.docker_registry }}/${{ inputs.docker_image }}:CI-${{ github.sha }}
 
             - name: Wait for application readiness
+              if: ${{ inputs.test_suite == 'headless' }}
               run: |
                   for i in {1..10}; do
                       if curl -s http://localhost:${{ inputs.port }}${{ inputs.ping_path }} >/dev/null; then
@@ -86,42 +101,51 @@ jobs:
                   done
                   echo "Application failed to start"; exit 1;
 
-            - name: Set up Node.js for testing tools
-              uses: actions/setup-node@v4
-              with:
-                  node-version: ${{ inputs.node_version }}
-
-            - name: Cache pnpm packages
+            - name: Setup Cache for pnpm
               uses: actions/cache@v4
               with:
-                  path: ~/.pnpm-store
-                  key: pnpm-cache
-                  restore-keys: |
-                      pnpm-
+                  path: /home/runner/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
 
             - name: Install PNPM and Dependencies
               run: |
                   npm install -g pnpm
-                  pnpm install --frozen-lockfile
+                  pnpm install --frozen-lockfile --store-dir=/home/runner/.pnpm-store
 
-            - name: Cache Playwright dependencies
-              id: playwright-cache
+            - name: Get installed Playwright version
+              run: |
+                  PLAYWRIGHT_VERSION=$(grep "'@playwright/test@" pnpm-lock.yaml | sed -n "s/.*'@playwright\/test@\([0-9.]*\)'.*/\1/p" | head -1)
+                  echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+            - name: Cache Playwright binaries
               uses: actions/cache@v4
+              id: playwright-cache
               with:
-                  path: ~/.cache/ms-playwright
-                  key: playwright-cache
-                  restore-keys: |
-                      playwright-
+                  path: /home/runner/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}-${{ inputs.test_browser }}
 
-            - name: Install Playwright dependencies
-              if: steps.playwright-cache.outputs.cache-hit != 'true'
-              run: pnpm exec playwright install --with-deps
+            - name: Install Playwright browsers and dependencies
+              if: steps.playwright-cache.outputs.cache-hit != 'true' || ${{ inputs.test_suite == 'headless' && inputs.test_browser == 'webkit' }}
+              run: pnpm exec playwright install --with-deps ${{ inputs.test_browser }}
 
             - name: Run tests
-              run: PORT=${{ inputs.port }} pnpm run test
+              run: pnpm run test:${{ inputs.test_suite }}:${{ inputs.test_browser }}
+              env:
+                  PORT: ${{ inputs.port }}
+                  APP_ENV: ${{ inputs.app_env }}
+                  TEST_CANVAS_CHROMIUM_USERNAME: ${{ inputs.test_username }}
+                  TEST_CANVAS_CHROMIUM_PASSWORD: ${{ secrets.test_password }}
+                  TEST_CANVAS_FIREFOX_USERNAME: ${{ inputs.test_username }}
+                  TEST_CANVAS_FIREFOX_PASSWORD: ${{ secrets.test_password }}
+                  TEST_CANVAS_WEBKIT_USERNAME: ${{ inputs.test_username }}
+                  TEST_CANVAS_WEBKIT_PASSWORD: ${{ secrets.test_password }}
 
-            - name: Stop and remove application container
+            - name: Generate Markdown Report
+              id: generate-markdown
+              if: always()
+              run: node .github/playwright/markdown-reporter.js
+
+            - name: Upload Markdown Report to GitHub Summary
               if: always()
               run: |
-                  docker stop ${{ inputs.docker_image }} || true
-                  docker rm ${{ inputs.docker_image }} || true
+                  cat ./playwright-report/report.md >> $GITHUB_STEP_SUMMARY

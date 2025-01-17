@@ -1,54 +1,49 @@
-FROM node:20-alpine AS builder
+# Docs: https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
+FROM node:20-alpine AS base
 
-ARG SENTRY_DSN
-ARG APP_ENV
-
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV SENTRY_DSN=${SENTRY_DSN}
-ENV APP_ENV=${APP_ENV}
-
+FROM base AS deps
+RUN apk add --no-cache \
+    # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+    libc6-compat \
+    # The error is caused by missing a Python installation required by node-gyp during the build process.
+    python3 make g++
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat libjpeg-turbo-dev libpng-dev giflib-dev
-RUN apk add --no-cache python3 make g++ build-base
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-RUN npm install -g pnpm
+# Learn more here: https://nextjs.org/telemetry
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
 
-COPY package.json pnpm-lock.yaml ./
-RUN NODE_ENV=development pnpm install --frozen-lockfile
+COPY package.json pnpm-lock.yaml* .npmrc* ./
+RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
+FROM base AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
-    SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) pnpm run build
 
-# ---
-
-FROM node:20-alpine AS runner
-
-ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
+RUN corepack enable pnpm && pnpm run build
+
+FROM base AS runner
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-RUN apk add --no-cache libc6-compat libjpeg-turbo-dev libpng-dev giflib-dev
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-RUN npm install -g pnpm
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.mjs ./
-COPY --from=builder /app/locales.mjs ./
-COPY --from=builder /app/next-i18next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-RUN pnpm install --prod
-
-RUN chown -R nextjs:nodejs /app
 USER nextjs
-
 EXPOSE 8080
-CMD ["pnpm", "start"]
+
+ENV PORT=8080
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]

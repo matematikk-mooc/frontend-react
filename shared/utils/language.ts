@@ -30,7 +30,7 @@ export const getTranslatedPath = (
     locale: string,
     params?: Record<string, string>,
     removeTrailingSlash: boolean = false,
-    includeLocale: boolean = false, // New parameter to control whether the locale is included in the path
+    includeLocale: boolean = false,
 ): string => {
     const translatedPath = pathTranslations[path]?.[locale];
     if (!translatedPath)
@@ -49,10 +49,6 @@ export const getTranslatedPath = (
             ? pathWithParams.slice(0, -1)
             : pathWithParams;
 
-    // Prepend the locale to the translated path unless it's 'nb' or includeLocale is false
-    if (includeLocale && locale !== 'nb') {
-        return `/${locale}${pathWithParams}`;
-    }
-
+    if (includeLocale && locale !== 'nb') return `/${locale}${pathWithParams}`;
     return pathWithParams.endsWith('/') ? pathWithParams : `${pathWithParams}/`;
 };
