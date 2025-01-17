@@ -25,15 +25,18 @@
         "prettier/prettier": "error",
         "react/react-in-jsx-scope": "off",
         "react/require-default-props": "off",
-        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            { "varsIgnorePattern": "Schema$", "argsIgnorePattern": "^_" }
+        ],
         "import/no-extraneous-dependencies": [
             "error",
             {
                 "devDependencies": [
-                    "**/*.test.ts",
-                    "**/*.test.tsx",
-                    "**/*.spec.ts",
-                    "**/*.spec.tsx",
+                    "**/*.ts",
+                    "**/*.tsx",
+                    "**/*.ts",
+                    "**/*.tsx",
                     "playwright.config.ts"
                 ]
             }
@@ -69,6 +72,15 @@
             }
         ]
     },
+    "overrides": [
+        {
+            "files": ["tests/**/*.ts"],
+            "rules": {
+                "no-restricted-syntax": "off",
+                "no-await-in-loop": "off"
+            }
+        }
+    ],
     "settings": {
         "react": {
             "version": "detect"

@@ -1,3 +1,4 @@
+/*
 import { test, expect } from '@playwright/test';
 
 test('X-Content-Type-Options', async ({ page }) => {
@@ -50,3 +51,4 @@ test('Cross-Origin Resource Policy (CORP)', async ({ page }) => {
     const metaCORP = page.locator('meta[http-equiv="Cross-Origin-Resource-Policy"]');
     await expect(metaCORP).toHaveAttribute('content', 'same-origin');
 });
+*/

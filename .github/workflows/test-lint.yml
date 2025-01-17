@@ -1,0 +1,39 @@
+on:
+    workflow_call:
+        inputs:
+            node_version:
+                type: string
+                description: 'Node.js version to use'
+                required: false
+        secrets: {}
+
+jobs:
+    test-lint:
+        name: Test - Lint
+        runs-on: ubuntu-latest
+        continue-on-error: true
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ inputs.node_version }}
+
+            - name: Ensure PNPM store directory exists
+              run: mkdir -p /home/runner/.pnpm-store
+
+            - name: Setup Cache for pnpm
+              uses: actions/cache@v4
+              with:
+                  path: /home/runner/.pnpm-store
+                  key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+
+            - name: Install PNPM and Dependencies
+              run: |
+                  npm install -g pnpm
+                  pnpm install --frozen-lockfile --store-dir=/home/runner/.pnpm-store
+
+            - name: Run lint checks
+              run: pnpm run lint

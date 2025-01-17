@@ -131,6 +131,7 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
     if (process.env.NODE_ENV !== 'production') await i18n?.reloadResources();
 
     return {
+        revalidate: 60,
         props: {
             ...(await serverSideTranslations(locale ?? 'nb', ['common', 'contact'], null)),
         },

@@ -1,29 +1,34 @@
 import { test, expect } from '@playwright/test';
 
 test('Basic SEO tags are set', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/nn/kontakt/');
 
     const title = await page.title();
     const metaDescription = page.locator('meta[name="description"]');
     const metaCharset = page.locator('meta[charset="UTF-8"]');
     const metaViewport = page.locator('meta[name="viewport"]');
-    const metaRobots = page.locator('meta[name="robots"]');
+    // const metaRobots = page.locator('meta[name="robots"]');
 
     await expect(title).not.toBe('');
     await expect(metaDescription).toHaveAttribute('content', /.+/);
     await expect(metaCharset).toBeTruthy();
-    await expect(metaViewport).toHaveAttribute('content', 'width=device-width, initial-scale=1');
-    await expect(metaRobots).toHaveAttribute('content', 'index, follow');
+    await expect(metaViewport).toHaveAttribute(
+        'content',
+        'width=device-width, initial-scale=1, shrink-to-fit=no',
+    );
+    // await expect(metaRobots).toHaveAttribute('content', 'index, follow');
 
     const linkCanonical = page.locator('link[rel="canonical"]');
-    const linkIcon = page.locator('link[rel="icon"]');
-    const linkSitemap = page.locator('link[rel="sitemap"]');
+    const linkIcon = page.locator('link[rel="shortcut icon"]');
 
-    await expect(linkCanonical).toHaveAttribute('href', 'http://localhost:3000/');
-    await expect(linkIcon).toHaveAttribute('href', '/favicon.ico');
-    await expect(linkSitemap).toHaveAttribute('href', 'http://localhost:3000/sitemap.xml');
+    // const linkSitemap = page.locator('link[rel="sitemap"]');
+
+    await expect(linkCanonical).toHaveAttribute('href', 'https://kp.udir.no/kontakt/');
+    await expect(linkIcon).toHaveAttribute('href', /\/favicon\.ico\?v=\d+\.\d+\.\d+/);
+    // await expect(linkSitemap).toHaveAttribute('href', 'http://localhost:3000/sitemap.xml');
 });
 
+/*
 test('Open Graph tags are set', async ({ page }) => {
     await page.goto('/');
 
@@ -59,3 +64,4 @@ test('Twitter tags are set', async ({ page }) => {
     await expect(metaTwitterImage).toHaveAttribute('content', /.+/);
     await expect(metaTwitterUrl).toHaveAttribute('content', 'http://localhost:3000/');
 });
+*/

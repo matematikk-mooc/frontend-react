@@ -3,19 +3,19 @@ const localesConfig = {
     routes: {
         '/contact/': {
             nb: '/kontakt/',
-            sv: '/kontakta/',
+            nn: '/kontakt/',
         },
         '/privacy/': {
             nb: '/personvern/',
-            sv: '/privatliv/',
+            nn: '/personvern/',
         },
         '/about/': {
             nb: '/om-kompetanseportalen/',
-            sv: '/om-kompetensportalen/',
+            nn: '/om-kompetanseportalen/',
         },
         '/': {
             nb: '/',
-            sv: '/',
+            nn: '/',
         },
     },
 };

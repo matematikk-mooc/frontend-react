@@ -26,7 +26,7 @@ const getBreadcrumbs = (locale: string, routerPath: string, t: TFunction): Bread
         },
     ];
 
-    if (routerPath === '/500') {
+    if (routerPath === '/500' || routerPath === '/_error') {
         breadcrumbs.push({
             id: 2,
             name: t('common:500_title'),

@@ -5,6 +5,9 @@ out/
 # Ignore node_modules
 node_modules/
 
+# Ignore pnpm store
+.pnpm-store/
+
 # Ignore lock files
 pnpm-lock.yaml
 package-lock.json

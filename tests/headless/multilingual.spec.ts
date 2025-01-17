@@ -7,13 +7,11 @@ describe('Multilingual', () => {
         await page.goto('/');
         await expect(page.locator('html')).toHaveAttribute('lang', 'nb');
 
-        await page.goto('/sv');
-        await expect(page.locator('html')).toHaveAttribute('lang', 'sv');
+        await page.goto('/nn/');
+        await expect(page.locator('html')).toHaveAttribute('lang', 'nn');
     });
 
     /*
-
-
     test('Direct template paths are redirected', async ({ page }) => {
         // TODO: Make sure /contact redirects to /kontakt
     });

@@ -1,0 +1,84 @@
+name: Branch - Default
+
+on:
+    push:
+        branches-ignore:
+            - stage
+            - main
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.ref }}-default
+    cancel-in-progress: true
+
+jobs:
+    build-docker:
+        uses: ./.github/workflows/build-docker.yml
+        with:
+            force_build: ${{ vars.FORCE_BUILD_DOCKER == 'true' }}
+            docker_registry: ${{ vars.STAGE_DOCKER_REGISTRY }}
+            docker_username: ${{ vars.STAGE_DOCKER_USERNAME }}
+            docker_image: ${{ vars.DOCKER_IMAGE }}
+            app_env: stage
+        secrets:
+            docker_password: ${{ secrets.STAGE_DOCKER_PASSWORD }}
+
+    test-lint:
+        needs: [build-docker]
+        uses: ./.github/workflows/test-lint.yml
+        with:
+            node_version: '20'
+
+    test-e2e-headless-chromium:
+        needs: [build-docker]
+        uses: ./.github/workflows/test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/kontakt/'
+            docker_registry: ${{ vars.STAGE_DOCKER_REGISTRY }}
+            docker_username: ${{ vars.STAGE_DOCKER_USERNAME }}
+            docker_image: ${{ vars.DOCKER_IMAGE }}
+            app_env: stage
+            test_username: ${{ vars.STAGE_TEST_CANVAS_CHROMIUM_USERNAME }}
+            test_suite: 'headless'
+            test_browser: 'chromium'
+        secrets:
+            docker_password: ${{ secrets.STAGE_DOCKER_PASSWORD }}
+            test_password: ${{ secrets.STAGE_TEST_CANVAS_CHROMIUM_PASSWORD }}
+
+    test-e2e-headless-firefox:
+        needs: [build-docker]
+        uses: ./.github/workflows/test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/kontakt/'
+            docker_registry: ${{ vars.STAGE_DOCKER_REGISTRY }}
+            docker_username: ${{ vars.STAGE_DOCKER_USERNAME }}
+            docker_image: ${{ vars.DOCKER_IMAGE }}
+            app_env: stage
+            test_username: ${{ vars.STAGE_TEST_CANVAS_USERNAME }}
+            test_suite: 'headless'
+            test_browser: 'firefox'
+        secrets:
+            docker_password: ${{ secrets.STAGE_DOCKER_PASSWORD }}
+            test_password: ${{ secrets.STAGE_TEST_CANVAS_PASSWORD }}
+
+    test-e2e-headless-webkit:
+        needs: [build-docker]
+        uses: ./.github/workflows/test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/kontakt/'
+            docker_registry: ${{ vars.STAGE_DOCKER_REGISTRY }}
+            docker_username: ${{ vars.STAGE_DOCKER_USERNAME }}
+            docker_image: ${{ vars.DOCKER_IMAGE }}
+            app_env: stage
+            test_username: ${{ vars.STAGE_TEST_CANVAS_USERNAME }}
+            test_suite: 'headless'
+            test_browser: 'webkit'
+        secrets:
+            docker_password: ${{ secrets.STAGE_DOCKER_PASSWORD }}
+            test_password: ${{ secrets.STAGE_TEST_CANVAS_PASSWORD }}

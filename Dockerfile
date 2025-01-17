@@ -1,44 +1,49 @@
-FROM node:20-alpine as builder
+# Docs: https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
+FROM node:20-alpine AS base
 
+FROM base AS deps
+RUN apk add --no-cache \
+    # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+    libc6-compat \
+    # The error is caused by missing a Python installation required by node-gyp during the build process.
+    python3 make g++
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat libjpeg-turbo-dev libpng-dev giflib-dev
-RUN apk add --no-cache python3 make g++ build-base
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-RUN npm install -g pnpm
-
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-
-COPY . .
-RUN pnpm run build
-
-# ---
-
-FROM node:20-alpine as runner
-
-WORKDIR /app
-ENV NODE_ENV=production
+# Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+COPY package.json pnpm-lock.yaml* .npmrc* ./
+RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
-RUN apk add --no-cache libc6-compat libjpeg-turbo-dev libpng-dev giflib-dev
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-RUN npm install -g pnpm
+FROM base AS builder
+WORKDIR /app
 
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+RUN corepack enable pnpm && pnpm run build
+
+FROM base AS runner
+WORKDIR /app
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.mjs ./
-COPY --from=builder /app/locales.mjs ./
-COPY --from=builder /app/next-i18next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-RUN pnpm install --prod
-
-RUN chown -R nextjs:nodejs /app
 USER nextjs
+EXPOSE 8080
 
-EXPOSE 3000
-CMD ["pnpm", "start"]
+ENV PORT=8080
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]
