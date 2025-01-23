@@ -38,7 +38,7 @@ jobs:
         with:
             port: ${{ vars.PORT }}
             node_version: '20'
-            ping_path: '/kontakt/'
+            ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_DOCKER_REGISTRY }}
             docker_username: ${{ vars.PROD_DOCKER_USERNAME }}
             docker_image: ${{ vars.DOCKER_IMAGE }}
@@ -56,7 +56,7 @@ jobs:
         with:
             port: ${{ vars.PORT }}
             node_version: '20'
-            ping_path: '/kontakt/'
+            ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_DOCKER_REGISTRY }}
             docker_username: ${{ vars.PROD_DOCKER_USERNAME }}
             docker_image: ${{ vars.DOCKER_IMAGE }}
@@ -74,7 +74,7 @@ jobs:
         with:
             port: ${{ vars.PORT }}
             node_version: '20'
-            ping_path: '/kontakt/'
+            ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_DOCKER_REGISTRY }}
             docker_username: ${{ vars.PROD_DOCKER_USERNAME }}
             docker_image: ${{ vars.DOCKER_IMAGE }}

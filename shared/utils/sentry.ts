@@ -38,6 +38,7 @@ export const captureException = (
         if (env === 'development') messages.push(debugMessage);
     }
 
+    Sentry.captureException(error);
     // const eventId = Sentry.captureException(error);
     // if (showReportDialog) Sentry.showReportDialog({ eventId });
 

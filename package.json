@@ -51,7 +51,6 @@
         "@next/bundle-analyzer": "^15.1.5",
         "@sentry/nextjs": "^8.50.0",
         "@sentry/types": "^8.50.0",
-        "@seriousme/openapi-schema-validator": "^2.3.0",
         "@tanstack/react-query": "^5.64.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",

@@ -2,7 +2,6 @@
 /* eslint-disable no-unreachable-loop */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { OpenApiGeneratorV3 } from '@asteasolutions/zod-to-openapi';
-import { Validator } from '@seriousme/openapi-schema-validator';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import swaggerJSDoc from 'swagger-jsdoc';
 
@@ -62,33 +61,7 @@ const handler = async (
         };
 
         const openAPIDoc: any = swaggerJSDoc(swaggerOptions);
-        const validator = new Validator();
-
-        const openAPIDocValidation = await validator.validate(openAPIDoc);
-        if (openAPIDocValidation.valid) {
-            openApiRes.payload = openAPIDoc;
-        } else {
-            openApiRes.error = true;
-            openApiRes.statusCode = 500;
-            openApiRes.payload = openAPIDoc;
-
-            const errors: any =
-                typeof openAPIDocValidation.errors === 'string'
-                    ? [openAPIDocValidation.errors]
-                    : openAPIDocValidation.errors;
-
-            for (const [index, error] of errors.entries()) {
-                openApiRes.messages.push({
-                    id: `kOqBNS_${index}`,
-                    service: 'bff',
-                    title: 'Schema validation error',
-                    description: error,
-                    type: 'error',
-                    visibility: 'public',
-                    dateTime: new Date().toISOString(),
-                });
-            }
-        }
+        openApiRes.payload = openAPIDoc;
     } catch (error) {
         openApiRes.error = true;
         openApiRes.statusCode = 500;
