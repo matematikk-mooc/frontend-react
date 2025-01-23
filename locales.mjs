@@ -1,6 +1,18 @@
-// ?NOTE: Update middleware.ts config.matcher if you add or remove paths, not able to dynamically generate that list
+// NOTE: Update middleware.ts config.matcher if you add or remove paths, not able to dynamically generate that list
 const localesConfig = {
     routes: {
+        '/courses/:courseID/:courseSlugID/': {
+            nb: '/kompetansepakker/:courseID/:courseSlugID/',
+            nn: '/kompetansepakkar/:courseID/:courseSlugID/',
+        },
+        '/courses/:courseID/': {
+            nb: '/kompetansepakker/:courseID/',
+            nn: '/kompetansepakkar/:courseID/',
+        },
+        '/courses/': {
+            nb: '/kompetansepakker/',
+            nn: '/kompetansepakkar/',
+        },
         '/contact/': {
             nb: '/kontakt/',
             nn: '/kontakt/',

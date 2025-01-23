@@ -6,7 +6,7 @@ import { TFunction, useTranslation } from 'next-i18next';
 import BaseLink from '@/shared/components/BaseLink';
 import ExternalLink from '@/shared/components/ExternalLink';
 import { DefaultProps } from '@/shared/interfaces/react';
-import { getTemplateName, getTranslatedPath } from '@/shared/utils/language';
+import { getRouterQuery, getTemplateName, getTranslatedPath } from '@/shared/utils/language';
 
 interface Breadcrumb {
     id: number;
@@ -15,7 +15,13 @@ interface Breadcrumb {
     external?: boolean;
 }
 
-const getBreadcrumbs = (locale: string, routerPath: string, t: TFunction): Breadcrumb[] => {
+const getBreadcrumbs = (
+    locale: string,
+    routerPath: string,
+    routerQuery: Record<string, string>,
+    t: TFunction,
+    title?: string,
+): Breadcrumb[] => {
     const templateName = getTemplateName(routerPath);
     const breadcrumbs: Breadcrumb[] = [
         {
@@ -42,19 +48,37 @@ const getBreadcrumbs = (locale: string, routerPath: string, t: TFunction): Bread
         breadcrumbs.push({
             id: 2,
             name: t('common:breadcrumbs_contact'),
-            url: getTranslatedPath(templateName, locale),
+            url: getTranslatedPath(templateName, locale, routerQuery),
         });
     } else if (routerPath === '/privacy') {
         breadcrumbs.push({
             id: 2,
             name: t('common:breadcrumbs_privacy'),
-            url: getTranslatedPath(templateName, locale),
+            url: getTranslatedPath(templateName, locale, routerQuery),
         });
     } else if (routerPath === '/about') {
         breadcrumbs.push({
             id: 2,
             name: t('common:breadcrumbs_about'),
-            url: getTranslatedPath(templateName, locale),
+            url: getTranslatedPath(templateName, locale, routerQuery),
+        });
+    } else if (routerPath === '/courses') {
+        breadcrumbs.push({
+            id: 2,
+            name: t('common:breadcrumbs_courses'),
+            url: getTranslatedPath(templateName, locale, routerQuery),
+        });
+    } else if (routerPath === '/courses/[...courseID]') {
+        breadcrumbs.push({
+            id: 2,
+            name: t('common:breadcrumbs_courses'),
+            url: getTranslatedPath('/courses/', locale, routerQuery),
+        });
+
+        breadcrumbs.push({
+            id: 3,
+            name: title ?? 'Pakke',
+            url: getTranslatedPath('/courses/:courseID/', locale, routerQuery),
         });
     }
 
@@ -66,9 +90,10 @@ interface BreadcrumbItemProps {
     url: string;
     isExternal: boolean;
     isLast: boolean;
+    locale: string;
 }
 
-function BreadcrumbItemLink({ name, url, isExternal, isLast }: BreadcrumbItemProps) {
+function BreadcrumbItemLink({ name, url, isExternal, isLast, locale }: BreadcrumbItemProps) {
     if (isLast) return <span className="font-semibold">{name}</span>;
     if (isExternal)
         return (
@@ -77,13 +102,23 @@ function BreadcrumbItemLink({ name, url, isExternal, isLast }: BreadcrumbItemPro
             </ExternalLink>
         );
 
-    return <BaseLink href={url}>{name}</BaseLink>;
+    return (
+        <BaseLink className="text-udir-white" href={url} locale={locale}>
+            {name}
+        </BaseLink>
+    );
 }
 
-function BreadcrumbItem({ name, url, isExternal, isLast }: BreadcrumbItemProps) {
+function BreadcrumbItem({ name, url, isExternal, isLast, locale }: BreadcrumbItemProps) {
     return (
         <li className="flex items-center justify-center max-sm:mb-2">
-            <BreadcrumbItemLink isExternal={isExternal} isLast={isLast} name={name} url={url} />
+            <BreadcrumbItemLink
+                isExternal={isExternal}
+                isLast={isLast}
+                locale={locale}
+                name={name}
+                url={url}
+            />
 
             {!isLast && (
                 <span className="mx-1">
@@ -94,13 +129,18 @@ function BreadcrumbItem({ name, url, isExternal, isLast }: BreadcrumbItemProps) 
     );
 }
 
-function Breadcrumbs({ id, className }: DefaultProps) {
+interface BreadcrumbsProps extends DefaultProps {
+    title?: string;
+}
+
+function Breadcrumbs({ id, className, title }: BreadcrumbsProps) {
     const { t } = useTranslation(['common']);
 
     const router = useRouter();
     const localeName = router?.locale ?? 'nb';
     const routerPath = router?.pathname;
-    const breadcrumbsItems = getBreadcrumbs(localeName, routerPath, t);
+    const routerQuery = getRouterQuery(router?.query);
+    const breadcrumbsItems = getBreadcrumbs(localeName, routerPath, routerQuery, t, title);
 
     return (
         <div
@@ -125,6 +165,7 @@ function Breadcrumbs({ id, className }: DefaultProps) {
                                 key={item.id}
                                 isExternal={item.external ?? false}
                                 isLast={item.id === breadcrumbsItems.length}
+                                locale={localeName}
                                 name={item.name}
                                 url={item.url}
                             />

@@ -30,6 +30,10 @@ const nextConfig = {
     swcMinify: true,
     publicRuntimeConfig: {
         APP_ENV: process.env.APP_ENV ?? 'development',
+        APP_VERSION: process.env.APP_VERSION ?? '1.0.0-dev',
+        BFF_API_URL:
+            process.env.BFF_API_URL ??
+            'https://app-kpas-stage-norwayeast-001.azurewebsites.net/api',
         KPAS_API_URL: process.env.KPAS_API_URL ?? 'https://kpas.staging.kompetanse.udir.no/api',
         SENTRY_DSN:
             process.env.SENTRY_DSN ??

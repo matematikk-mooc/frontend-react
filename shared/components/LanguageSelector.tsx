@@ -7,7 +7,7 @@ import { useRef, useState } from 'react';
 
 import BaseLink from '@/shared/components/BaseLink';
 import { DefaultProps } from '@/shared/interfaces/react';
-import { getTemplateName, getTranslatedPath } from '@/shared/utils/language';
+import { getRouterQuery, getTemplateName, getTranslatedPath } from '@/shared/utils/language';
 
 const PopoverContent = Popover.Content;
 
@@ -47,6 +47,7 @@ function LanguageSelector({ id, className, iconStack }: Props) {
     const router = useRouter();
     const localeName = router?.locale ?? 'nb';
     const routerPath = router?.pathname;
+    const routerQuery = getRouterQuery(router?.query);
     const templateName = getTemplateName(routerPath);
 
     return (
@@ -77,7 +78,7 @@ function LanguageSelector({ id, className, iconStack }: Props) {
                     <ul className="flex flex-col items-center justify-start">
                         <li className="mb-2">
                             <LanguageItem
-                                href={getTranslatedPath(templateName, 'nb')}
+                                href={getTranslatedPath(templateName, 'nb', routerQuery)}
                                 locale="nb"
                                 selectedLocale={localeName}
                                 title="NB"
@@ -87,7 +88,7 @@ function LanguageSelector({ id, className, iconStack }: Props) {
 
                         <li>
                             <LanguageItem
-                                href={getTranslatedPath(templateName, 'nn')}
+                                href={getTranslatedPath(templateName, 'nn', routerQuery)}
                                 locale="nn"
                                 selectedLocale={localeName}
                                 title="NN"

@@ -26,6 +26,11 @@ const config = {
                 'udir-black': '#303030',
                 'udir-white': '#ffffff',
                 'udir-gray': '#eaeaea',
+
+                'udir-success': '#3b7858',
+                'udir-error': '#db0001',
+
+                'udir-theme-gray': '#eaeaf5',
             },
         },
     },

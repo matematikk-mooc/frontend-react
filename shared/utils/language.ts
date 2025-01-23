@@ -1,3 +1,5 @@
+import { ParsedUrlQuery } from 'querystring';
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import localesConfig from '../../locales.mjs';
@@ -12,7 +14,8 @@ export const pathTranslations: PathTranslations = localesConfig.routes;
 
 export const getTemplateName = (pathname: string): string => {
     const sortedKeys = Object.keys(pathTranslations).sort((a, b) => b.length - a.length);
-    const normalizedPathname = pathname.endsWith('/') ? pathname : `${pathname}/`;
+    let normalizedPathname = pathname.endsWith('/') ? pathname : `${pathname}/`;
+    normalizedPathname = normalizedPathname.replace(/\[([a-zA-Z]+)\]/g, ':$1');
     if (normalizedPathname === '/404/' || normalizedPathname === '/500/') return '/';
 
     const templateKey = sortedKeys.find(key => {
@@ -23,6 +26,14 @@ export const getTemplateName = (pathname: string): string => {
     if (!templateKey)
         throw new Error(`Template name not found for pathname: ${normalizedPathname}`);
     return templateKey;
+};
+
+export const getRouterQuery = (query: ParsedUrlQuery): Record<string, string> => {
+    const routerQuery = query as Record<string, string>;
+    return Object.keys(routerQuery).reduce((acc, key) => {
+        const value = routerQuery[key];
+        return { ...acc, [key]: Array.isArray(value) ? value[0] : value };
+    }, {});
 };
 
 export const getTranslatedPath = (
@@ -39,8 +50,8 @@ export const getTranslatedPath = (
     let pathWithParams = translatedPath;
     if (params) {
         Object.keys(params).forEach(paramKey => {
-            const paramValue = params[paramKey];
-            pathWithParams = pathWithParams.replace(`[${paramKey}]`, paramValue || '');
+            const paramValue = params[paramKey] ?? '';
+            pathWithParams = pathWithParams.replace(`/:${paramKey}/`, `/${paramValue}/`);
         });
     }
 
@@ -51,4 +62,9 @@ export const getTranslatedPath = (
 
     if (includeLocale && locale !== 'nb') return `/${locale}${pathWithParams}`;
     return pathWithParams.endsWith('/') ? pathWithParams : `${pathWithParams}/`;
+};
+
+export const getObjectTranslation = (locale: string, dataObject = {}, fallbackLocale = 'nb') => {
+    const object = dataObject as Record<string, string>;
+    return object[locale] || object[fallbackLocale] || null;
 };
