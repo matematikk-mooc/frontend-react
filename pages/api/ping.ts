@@ -1,21 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { apiResponse, IResponse, responseSchema } from '@/integrations/apiFetch';
+import { getOpenAPI, IPing, PingSchema } from '@/integrations/bff/v1/other';
 import { resHandler } from '@/integrations/kpas/kpasFetch';
 import { getCourses } from '@/integrations/kpas/v1/export';
 import packageConfig from '@/package.json';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
 import z from '@/shared/utils/validate';
-
-export const PingSchema = z
-    .strictObject({
-        version: z.string().openapi({ example: '1.0.0' }),
-        integrations: z.strictObject({
-            kpas: z.boolean().openapi({ example: true }),
-        }),
-    })
-    .openapi('Ping');
-export type IPing = z.infer<typeof PingSchema>;
 
 export const PingResSchema = responseSchema
     .extend({
@@ -47,10 +38,31 @@ export type IPingRes =
 const handler = async (_req: NextApiRequest, res: NextApiResponse<IPingRes>) => {
     const pingRes = apiResponse<IPing>({
         version: packageConfig?.version ?? '0.0.0',
+        openapi: false,
         integrations: {
             kpas: false,
         },
     });
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const openAPI: any = await getOpenAPI();
+        if (openAPI?.error === undefined) pingRes.payload.openapi = true;
+    } catch (error) {
+        pingRes.error = true;
+        pingRes.statusCode = 500;
+        pingRes.messages.push({
+            id: 'EH4VhE',
+            service: 'bff',
+            title: 'Internal Server Error',
+            description: 'Failed to generate OpenAPI documentation.',
+            type: 'error',
+            visibility: 'public',
+            dateTime: new Date().toISOString(),
+        });
+
+        captureException('vknLTd', error, pingRes.messages);
+    }
 
     try {
         const courses = await getCourses();

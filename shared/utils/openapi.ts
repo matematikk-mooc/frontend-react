@@ -1,45 +1,38 @@
 import z from '@/shared/utils/validate';
 
-export const swaggerOptions = {
-    swaggerDefinition: {
-        openapi: '3.0.0',
-        info: {
-            version: '1.0.0',
-            title: 'BFF | KPAS',
-            contact: {
-                name: 'Support',
-                email: 'kompetansesupport@udir.no',
-                url: 'https://kp.udir.no/kontakt/',
-            },
-            license: {
-                name: 'Apache 2.0',
-                url: 'https://www.apache.org/licenses/LICENSE-2.0.html',
-            },
+export const openAPIDefinition = {
+    openapi: '3.0.0',
+    info: {
+        version: '1.0.0',
+        title: 'BFF | KPAS',
+        contact: {
+            name: 'Support',
+            email: 'kompetansesupport@udir.no',
+            url: 'https://kp.udir.no/kontakt/',
         },
-        servers: [
-            {
-                url: 'http://localhost:3000/api',
-                description: 'Local',
-            },
-            {
-                url: 'https://app-kpas-stage-norwayeast-001.azurewebsites.net/api',
-                description: 'Stage',
-            },
-            {
-                url: 'https://kp.udir.no/api',
-                description: 'Production',
-            },
-        ],
-        security: [{ bearerAuth: [] }],
-        tags: [{ name: 'KPAS' }, { name: 'Other' }],
-        components: {
-            securitySchemes: {
-                bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-            },
-            schemas: {},
+        license: {
+            name: 'Apache 2.0',
+            url: 'https://www.apache.org/licenses/LICENSE-2.0.html',
         },
     },
-    apis: ['**/api/**/*.ts'],
+    servers: [
+        {
+            url: 'https://app-kpas-stage-norwayeast-001.azurewebsites.net/api',
+            description: 'Stage',
+        },
+        {
+            url: 'https://kp.udir.no/api',
+            description: 'Production',
+        },
+    ],
+    security: [{ bearerAuth: [] }],
+    tags: [{ name: 'KPAS' }, { name: 'Other' }],
+    components: {
+        securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        },
+        schemas: {},
+    },
 };
 
 export const OpenAPIResSchema = z

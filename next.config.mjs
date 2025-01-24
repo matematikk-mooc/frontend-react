@@ -19,25 +19,31 @@ const withPWA = nextPwa({
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const appEnv = process.env.APP_ENV ?? 'development';
+let sentryDsn = '';
+
+if (process.env.SENTRY_DSN && process.env.SENTRY_DSN !== '') {
+    sentryDsn = process.env.SENTRY_DSN;
+} else if (appEnv !== 'local') {
+    sentryDsn =
+        'https://27fcdf875d9baf4718fb32987d327720@o4507468577701888.ingest.de.sentry.io/4508206265335888';
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone',
     i18n: i18nConfig.i18n,
     productionBrowserSourceMaps: false,
     reactStrictMode: true,
     trailingSlash: true,
     swcMinify: true,
     publicRuntimeConfig: {
-        APP_ENV: process.env.APP_ENV ?? 'development',
+        APP_ENV: appEnv,
         APP_VERSION: process.env.APP_VERSION ?? '1.0.0-dev',
         BFF_API_URL:
             process.env.BFF_API_URL ??
             'https://app-kpas-stage-norwayeast-001.azurewebsites.net/api',
         KPAS_API_URL: process.env.KPAS_API_URL ?? 'https://kpas.staging.kompetanse.udir.no/api',
-        SENTRY_DSN:
-            process.env.SENTRY_DSN ??
-            'https://27fcdf875d9baf4718fb32987d327720@o4507468577701888.ingest.de.sentry.io/4508206265335888',
+        SENTRY_DSN: sentryDsn,
     },
     experimental: {
         optimizePackageImports: ['@navikt/ds-react', '@navikt/aksel-icons'],

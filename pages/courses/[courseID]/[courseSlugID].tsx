@@ -77,7 +77,7 @@ function Course(props: IProps) {
                 </div>
 
                 <div
-                    className="mx-auto max-w-4xl p-10"
+                    className="raw-html-content mx-auto max-w-4xl p-10"
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
                         __html: getObjectTranslation(localeName, page?.content) ?? '',
@@ -91,7 +91,7 @@ function Course(props: IProps) {
 export const getStaticPaths = async () => {
     const coursesModulesPaths = [];
 
-    if (!PHASE_PRODUCTION_BUILD) {
+    if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
         const coursesRes = await getCourses();
 
         for (const courseID of coursesRes.payload) {
@@ -129,13 +129,14 @@ export const getStaticProps = async ({
     const { courseID, courseSlugID } = params ?? {};
     const parsedID = Number(courseID);
     const returnObject = {
+        revalidate: 60,
         props: {
             ...(await serverSideTranslations(locale ?? 'nb', ['common', 'course'], null)),
         },
     };
 
     const courseRes = await getCourse(parsedID);
-    if (courseRes.payload === null) return { ...returnObject, notFound: true };
+    if (courseRes.payload === null) return { ...returnObject, notFound: true, revalidate: 1 };
 
     const courseData = courseRes.payload;
     const modulesRes = await getCourseModules(parsedID);
@@ -146,7 +147,6 @@ export const getStaticProps = async ({
 
     return {
         ...returnObject,
-        revalidate: 60,
         props: {
             ...returnObject.props,
             course: courseData,

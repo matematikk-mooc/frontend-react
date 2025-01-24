@@ -35,7 +35,7 @@ export const captureException = (
             level: 'debug',
         });
 
-        if (env === 'development') messages.push(debugMessage);
+        if (env === 'local') messages.push(debugMessage);
     }
 
     Sentry.captureException(error);
@@ -85,7 +85,7 @@ export const handleSchemaValidation = async <TSchema, TBody>(
             level: 'error',
         });
 
-        if (env === 'development') response.messages.push(debugMessage);
+        if (env === 'local') response.messages.push(debugMessage);
     }
 
     return response;

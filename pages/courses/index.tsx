@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { i18n, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useEffect } from 'react';
 
 import { getCourse, getCourses } from '@/integrations/bff/v1/course';
 import { IKPASCourse, IKPASCourseCategory } from '@/integrations/kpas/v1/export';
@@ -109,6 +110,11 @@ function Courses(props: IProps) {
     const routerPath = router?.pathname;
     const templateName = getTemplateName(routerPath);
 
+    useEffect(() => {
+        if (courses.length <= 0) router.reload();
+    }, [courses, router]);
+    if (courses.length <= 0) return null;
+
     return (
         <>
             <Head>
@@ -150,7 +156,7 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
 
     let returnCourses: IKPASCourse[] = [];
 
-    if (!PHASE_PRODUCTION_BUILD) {
+    if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
         const coursesRes = await getCourses();
         const courseIDs = coursesRes.payload ?? [];
 
@@ -161,7 +167,7 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
     }
 
     return {
-        revalidate: 60,
+        revalidate: returnCourses.length > 0 ? 60 : 1,
         props: {
             ...(await serverSideTranslations(locale ?? 'nb', ['common', 'courses'], null)),
             courses: returnCourses.reverse(),

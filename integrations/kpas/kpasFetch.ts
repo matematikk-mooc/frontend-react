@@ -66,7 +66,7 @@ export const resHandler = <TBody>(res: IKPASResponse<TBody>): IResponse<TBody | 
             level: 'debug',
         });
 
-        if (env === 'development') returnRes.messages.push(debugMessage);
+        if (env === 'local') returnRes.messages.push(debugMessage);
 
         return returnRes;
     }

@@ -102,8 +102,11 @@ function Course(props: IProps) {
                     Denne siden er fortsatt under utvikling.
                 </Alert>
 
-                {/* eslint-disable-next-line react/no-danger */}
-                <div dangerouslySetInnerHTML={{ __html: frontpageContentHTML }} />
+                <div
+                    className="raw-html-content"
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: frontpageContentHTML }}
+                />
             </CourseHome>
         </>
     );
@@ -112,7 +115,7 @@ function Course(props: IProps) {
 export const getStaticPaths = async () => {
     const coursesPaths = [];
 
-    if (!PHASE_PRODUCTION_BUILD) {
+    if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
         const coursesRes = await getCourses();
 
         for (const courseID of coursesRes.payload) {
@@ -144,25 +147,21 @@ export const getStaticProps = async ({
             ...(await serverSideTranslations(locale ?? 'nb', ['common', 'course'], null)),
         },
     };
-    let coursePayload: IKPASCourse | null = null;
-    let modulesPayload: IKPASCourseModule[] = [];
+
+    const { courseID } = params ?? {};
+    const parsedID = Number(courseID);
     let frontpagePayload: IKPASCoursePage | null = null;
 
-    if (!PHASE_PRODUCTION_BUILD) {
-        const { courseID } = params ?? {};
-        const parsedID = Number(courseID);
+    const courseRes = await getCourse(parsedID);
+    if (courseRes.payload === null) return { ...returnObject, notFound: true };
 
-        const courseRes = await getCourse(parsedID);
-        if (courseRes.payload === null) return { ...returnObject, notFound: true };
+    const coursePayload = courseRes.payload;
+    const modulesRes = await getCourseModules(parsedID);
+    const modulesPayload = modulesRes.payload ?? [];
 
-        coursePayload = courseRes.payload;
-        const modulesRes = await getCourseModules(parsedID);
-        modulesPayload = modulesRes.payload ?? [];
-
-        if (coursePayload.frontpageSlugID !== null) {
-            const frontpageRes = await getCoursePage(parsedID, coursePayload.frontpageSlugID);
-            if (frontpageRes.payload !== null) frontpagePayload = frontpageRes.payload;
-        }
+    if (coursePayload.frontpageSlugID !== null) {
+        const frontpageRes = await getCoursePage(parsedID, coursePayload.frontpageSlugID);
+        if (frontpageRes.payload !== null) frontpagePayload = frontpageRes.payload;
     }
 
     return {

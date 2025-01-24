@@ -1,19 +1,19 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-unreachable-loop */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { OpenApiGeneratorV3 } from '@asteasolutions/zod-to-openapi';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import swaggerJSDoc from 'swagger-jsdoc';
+import getConfig from 'next/config';
+import { createSwaggerSpec } from 'next-swagger-doc';
 
 import { apiResponse, IResponse } from '@/integrations/apiFetch';
 import { KPASCoursesResSchema } from '@/pages/api/kpas/v1/courses';
 import { KPASCourseResSchema } from '@/pages/api/kpas/v1/courses/[courseID]';
 import { PingResSchema } from '@/pages/api/ping';
-import { IOpenAPIRes, OpenAPIResSchema, swaggerOptions } from '@/shared/utils/openapi';
+import { IOpenAPIRes, OpenAPIResSchema, openAPIDefinition } from '@/shared/utils/openapi';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
 
 import { KPASCourseModulesResSchema } from './kpas/v1/courses/[courseID]/modules';
 import { KPASCoursePageResSchema } from './kpas/v1/courses/[courseID]/pages/[pageSlug]';
+
+const { publicRuntimeConfig } = getConfig() || {};
 
 /**
  * @swagger
@@ -41,9 +41,15 @@ const handler = async (
     _req: NextApiRequest,
     res: NextApiResponse<IOpenAPIRes | IResponse<null>>,
 ) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const openApiRes = apiResponse<any>(null);
 
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const specificationRes: any = createSwaggerSpec({
+            apiFolder: 'pages/api',
+            definition: openAPIDefinition,
+        });
         const openAPIGenerator = new OpenApiGeneratorV3([
             OpenAPIResSchema,
             PingResSchema,
@@ -55,13 +61,21 @@ const handler = async (
             KPASCoursePageResSchema,
         ]);
 
-        swaggerOptions.swaggerDefinition.components.schemas = {
-            ...swaggerOptions.swaggerDefinition.components.schemas,
+        specificationRes.components.schemas = {
+            ...specificationRes.components.schemas,
             ...openAPIGenerator.generateComponents().components?.schemas,
         };
 
-        const openAPIDoc: any = swaggerJSDoc(swaggerOptions);
-        openApiRes.payload = openAPIDoc;
+        if (publicRuntimeConfig.APP_ENV === 'local') {
+            specificationRes.servers.unshift({
+                url: 'http://localhost:3000/api',
+                description: 'Local',
+            });
+        } else if (publicRuntimeConfig.APP_ENV === 'production') {
+            specificationRes.servers.reverse();
+        }
+
+        openApiRes.payload = specificationRes;
     } catch (error) {
         openApiRes.error = true;
         openApiRes.statusCode = 500;
