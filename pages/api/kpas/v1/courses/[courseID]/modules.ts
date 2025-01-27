@@ -5,7 +5,7 @@ import { resHandler } from '@/integrations/kpas/kpasFetch';
 import {
     KPASCourseModuleSchema,
     IKPASCourseModule,
-    getCourseModules,
+    getCourseModulesWithCache,
 } from '@/integrations/kpas/v1/export';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
 import z from '@/shared/utils/validate';
@@ -19,7 +19,7 @@ export type IKPASCourseModulesRes = z.infer<typeof KPASCourseModulesResSchema>;
 
 /**
  * @swagger
- * /kpas/v1/courses/{course_id}/modules:
+ * /kpas/v1/courses/{course_id}/modules/:
  *   get:
  *     summary: Course Modules
  *     description: Retrieve course modules.
@@ -65,7 +65,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<IKPASCourseModu
             return res.status(courseModulesRes.statusCode).json(courseModulesRes);
         }
 
-        const courseModules = await getCourseModules(courseIdNumber);
+        const courseModules = await getCourseModulesWithCache(courseIdNumber);
         const kpasRes = resHandler<IKPASCourseModule[]>(courseModules);
 
         if (!kpasRes.error) {

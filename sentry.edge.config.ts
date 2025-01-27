@@ -11,6 +11,7 @@ const { publicRuntimeConfig } = getConfig() || {};
 Sentry.init({
     debug: false,
     environment: publicRuntimeConfig.APP_ENV,
+    release: publicRuntimeConfig.APP_VERSION,
     dsn: publicRuntimeConfig.APP_ENV !== 'local' ? publicRuntimeConfig.SENTRY_DSN : undefined,
     tracesSampleRate: 1,
 });

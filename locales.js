@@ -32,9 +32,7 @@ const localesConfig = {
     },
 };
 
-export default localesConfig;
-
-export const generateRewrites = () => {
+const generateRewrites = () => {
     const rewrites = [];
 
     Object.keys(localesConfig.routes).forEach(defaultPath => {
@@ -57,3 +55,5 @@ export const generateRewrites = () => {
 
     return rewrites;
 };
+
+module.exports = { localesConfig, generateRewrites };

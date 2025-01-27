@@ -1,21 +1,13 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 import { Alert } from '@navikt/ds-react';
-import { GetStaticPropsContext } from 'next';
-import { PHASE_PRODUCTION_BUILD } from 'next/constants';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { i18n, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
-import CourseHome from '@/features/course/layouts/Home';
-import {
-    getCourse,
-    getCourseModules,
-    getCoursePage,
-    getCourses,
-} from '@/integrations/bff/v1/course';
+import CourseHomeLayout from '@/features/course/layouts/Home';
+import { getCourse, getCourseModules, getCoursePage } from '@/integrations/bff/v1/course';
 import {
     IEnrollmentState,
     IKPASCourse,
@@ -47,7 +39,7 @@ function Course(props: IProps) {
     const [enrollmentState, setEnrollmentState] = useState<IEnrollmentState>({
         enrolled: false,
         requirements: {
-            completed: 24,
+            completed: 0,
             total: requirementsCount,
         },
     });
@@ -62,6 +54,7 @@ function Course(props: IProps) {
     const title = course?.title ?? '';
     const description = course?.description ?? '';
     const categories = course?.categories ?? [];
+    const languages = course?.languages ?? [];
     const thumbnail = course?.images?.[0] ?? null;
     const frontpageContentHTML = getObjectTranslation(localeName, frontpage?.content) ?? '';
 
@@ -81,11 +74,12 @@ function Course(props: IProps) {
                 <meta content="nofollow,noindex" name="robots" />
             </Head>
 
-            <CourseHome
+            <CourseHomeLayout
                 categories={categories}
                 courseID={course?.id ?? 0}
                 description={description?.substring(0, 500)}
                 enrollment={enrollmentState}
+                languages={languages}
                 locale="nb"
                 modules={modules}
                 template="course"
@@ -104,71 +98,47 @@ function Course(props: IProps) {
 
                 <div
                     className="raw-html-content"
-                    // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{ __html: frontpageContentHTML }}
                 />
-            </CourseHome>
+            </CourseHomeLayout>
         </>
     );
 }
 
-export const getStaticPaths = async () => {
-    const coursesPaths = [];
-
-    if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
-        const coursesRes = await getCourses();
-
-        for (const courseID of coursesRes.payload) {
-            const courseRes = await getCourse(courseID);
-            if (courseRes.payload !== null) {
-                coursesPaths.push({
-                    params: {
-                        courseID: courseRes.payload.id.toString(),
-                    },
-                });
-            }
-        }
-    }
-
-    return {
-        paths: coursesPaths,
-        fallback: 'blocking',
-    };
-};
-
-export const getStaticProps = async ({
+export const getServerSideProps = async ({
     locale,
     params,
-}: GetStaticPropsContext<{ courseID: string }>) => {
+}: GetServerSidePropsContext<{ courseID: string }>) => {
     if (process.env.NODE_ENV !== 'production') await i18n?.reloadResources();
-
-    const returnObject = {
-        props: {
-            ...(await serverSideTranslations(locale ?? 'nb', ['common', 'course'], null)),
-        },
-    };
+    const translations = await serverSideTranslations(locale ?? 'nb', ['common', 'course'], null);
 
     const { courseID } = params ?? {};
     const parsedID = Number(courseID);
-    let frontpagePayload: IKPASCoursePage | null = null;
+    if (Number.isNaN(parsedID)) return { notFound: true, props: { ...translations } };
 
-    const courseRes = await getCourse(parsedID);
-    if (courseRes.payload === null) return { ...returnObject, notFound: true };
+    const courseRes = await getCourse(parsedID)
+        .then(res => res)
+        .catch(err => {
+            if (err instanceof Error && err.message.includes('status 404'))
+                return { payload: null };
+
+            throw err;
+        });
+    if (courseRes.payload === null) return { notFound: true, props: { ...translations } };
 
     const coursePayload = courseRes.payload;
     const modulesRes = await getCourseModules(parsedID);
     const modulesPayload = modulesRes.payload ?? [];
 
+    let frontpagePayload: IKPASCoursePage | null = null;
     if (coursePayload.frontpageSlugID !== null) {
         const frontpageRes = await getCoursePage(parsedID, coursePayload.frontpageSlugID);
         if (frontpageRes.payload !== null) frontpagePayload = frontpageRes.payload;
     }
 
     return {
-        ...returnObject,
-        revalidate: 60,
         props: {
-            ...returnObject.props,
+            ...translations,
             course: coursePayload,
             modules: modulesPayload,
             frontpage: frontpagePayload,

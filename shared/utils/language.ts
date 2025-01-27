@@ -1,8 +1,6 @@
 import { ParsedUrlQuery } from 'querystring';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import localesConfig from '../../locales.mjs';
+import { localesConfig } from '../../locales.js';
 
 interface PathTranslations {
     [key: string]: {

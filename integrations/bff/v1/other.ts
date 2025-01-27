@@ -7,7 +7,7 @@ import z from '@/shared/utils/validate';
 const { publicRuntimeConfig } = getConfig() || {};
 
 export const getOpenAPI = async () => {
-    const apiPath = `/openapi`;
+    const apiPath = `/openapi/`;
     return apiFetch<IOpenAPIRes>(publicRuntimeConfig.BFF_API_URL, apiPath);
 };
 
@@ -23,6 +23,6 @@ export const PingSchema = z
 export type IPing = z.infer<typeof PingSchema>;
 
 export const getPing = async () => {
-    const apiPath = `/ping`;
+    const apiPath = `/ping/`;
     return apiFetch<IPing>(publicRuntimeConfig.BFF_API_URL, apiPath);
 };

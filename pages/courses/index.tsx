@@ -1,18 +1,30 @@
 import { Alert } from '@navikt/ds-react';
-import { GetStaticPropsContext } from 'next';
-import { PHASE_PRODUCTION_BUILD } from 'next/constants';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { i18n, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useEffect } from 'react';
 
 import { getCourse, getCourses } from '@/integrations/bff/v1/course';
 import { IKPASCourse, IKPASCourseCategory } from '@/integrations/kpas/v1/export';
 import BaseLink from '@/shared/components/BaseLink';
-import Default from '@/shared/layouts/Default';
+import DefaultLayout from '@/shared/layouts/Default';
 import { getTemplateName, getTranslatedPath } from '@/shared/utils/language';
+
+export const languageMap: Record<string, string> = {
+    nb: 'Bokmål',
+    nn: 'Nynorsk',
+    se: 'Samisk',
+};
+
+function LanguageLabel({ language }: { language: string }) {
+    return (
+        <li className="flex items-center justify-center rounded-xl bg-udir-gray px-3 py-1 text-center text-sm">
+            {languageMap[language] ?? language}
+        </li>
+    );
+}
 
 type ILabelProps = {
     category: IKPASCourseCategory;
@@ -47,11 +59,17 @@ function CourseItem({ course, locale }: IItemProps) {
             >
                 <div className="flex grow flex-col-reverse">
                     <div className="flex grow flex-col items-start justify-start px-5 py-4 pb-0">
-                        <h2 className="!mb-2 text-xl">{course.title}</h2>
+                        <div className="flex flex-col-reverse">
+                            <div>
+                                <h2 className="!mb-2 text-xl">{course.title}</h2>
 
-                        <p className="!mb-0 text-base">{course.description?.substring(0, 255)}</p>
+                                <p className="!mb-5 text-base">
+                                    {course.description?.substring(0, 255)}
+                                </p>
+                            </div>
+                        </div>
 
-                        <ul className="mt-5 flex list-none flex-wrap gap-2 !pb-0 !pl-0">
+                        <ul className="flex list-none flex-wrap gap-2 !pb-0 !pl-0">
                             {course.categories.map(category => (
                                 <CourseLabel key={category?.id} category={category} />
                             ))}
@@ -86,7 +104,17 @@ function CourseItem({ course, locale }: IItemProps) {
                     </div>
                 </div>
 
-                <div className="m-5 mt-14 flex grow-0 items-start justify-start">
+                <div className="m-5 mt-12 flex grow-0 flex-col items-start justify-start">
+                    <div className="mb-2 flex items-center justify-center">
+                        <h3 className="mr-3 text-sm">Tilgjengeglig språk:</h3>
+
+                        <ul className="mb-3 flex list-none flex-wrap gap-2 !pb-0 !pl-0">
+                            {course.languages.map(lang => (
+                                <LanguageLabel key={lang} language={lang} />
+                            ))}
+                        </ul>
+                    </div>
+
                     <span className="w-full rounded bg-udir-black p-2 px-5 text-center text-base text-udir-white">
                         Les mer
                     </span>
@@ -110,11 +138,6 @@ function Courses(props: IProps) {
     const routerPath = router?.pathname;
     const templateName = getTemplateName(routerPath);
 
-    useEffect(() => {
-        if (courses.length <= 0) router.reload();
-    }, [courses, router]);
-    if (courses.length <= 0) return null;
-
     return (
         <>
             <Head>
@@ -130,7 +153,7 @@ function Courses(props: IProps) {
                 <meta content="nofollow,noindex" name="robots" />
             </Head>
 
-            <Default className="content-layout-courses" template="courses">
+            <DefaultLayout className="content-layout-courses" template="courses">
                 <div className="mx-5">
                     <div className="mx-auto mb-28 mt-10 flex max-w-7xl flex-col">
                         <h1>Oversikt over alle kompetansepakker</h1>
@@ -146,33 +169,24 @@ function Courses(props: IProps) {
                         </ul>
                     </div>
                 </div>
-            </Default>
+            </DefaultLayout>
         </>
     );
 }
 
-export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
+export const getServerSideProps = async ({ locale }: GetServerSidePropsContext) => {
     if (process.env.NODE_ENV !== 'production') await i18n?.reloadResources();
+    const translations = await serverSideTranslations(locale ?? 'nb', ['common', 'courses'], null);
 
-    let returnCourses: IKPASCourse[] = [];
+    const coursesRes = await getCourses();
+    const courseIDs = coursesRes.payload ?? [];
 
-    if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
-        const coursesRes = await getCourses();
-        const courseIDs = coursesRes.payload ?? [];
+    const courseDetailsPromises = courseIDs.map(courseID =>
+        getCourse(courseID).then(res => res.payload ?? null),
+    );
+    const returnCourses = await Promise.all(courseDetailsPromises);
 
-        const courseDetailsPromises = courseIDs.map(courseID =>
-            getCourse(courseID).then(res => res.payload ?? null),
-        );
-        returnCourses = await Promise.all(courseDetailsPromises);
-    }
-
-    return {
-        revalidate: returnCourses.length > 0 ? 60 : 1,
-        props: {
-            ...(await serverSideTranslations(locale ?? 'nb', ['common', 'courses'], null)),
-            courses: returnCourses.reverse(),
-        },
-    };
+    return { props: { ...translations, courses: returnCourses.reverse() } };
 };
 
 export default Courses;

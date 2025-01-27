@@ -1,9 +1,10 @@
-import { ArrowLeftIcon, TasklistIcon, CheckmarkIcon } from '@navikt/aksel-icons';
+import { ArrowLeftIcon } from '@navikt/aksel-icons';
 import clsx from 'clsx';
 
+import { Module } from '@/features/course/layouts/Home';
 import { IKPASCourseCategory, IKPASCourseModule } from '@/integrations/kpas/v1/export';
 import BaseLink from '@/shared/components/BaseLink';
-import Empty, { Props } from '@/shared/layouts/Empty';
+import EmptyLayout, { Props } from '@/shared/layouts/Empty';
 import { getTranslatedPath } from '@/shared/utils/language';
 
 interface ContentProps extends Props {
@@ -12,7 +13,6 @@ interface ContentProps extends Props {
     description?: string;
     contentTitle: string;
     categories: IKPASCourseCategory[];
-    // eslint-disable-next-line react/no-unused-prop-types
     modules: IKPASCourseModule[];
     locale: string;
 }
@@ -26,13 +26,14 @@ function Content({
     description,
     contentTitle,
     categories,
+    modules,
     locale,
     children,
 }: ContentProps) {
     const mainCategory = categories.find(category => category?.isPrimary);
 
     return (
-        <Empty
+        <EmptyLayout
             className={clsx('course-layout-content', className ?? false)}
             id={id}
             template={template}
@@ -61,52 +62,20 @@ function Content({
                                 <span className="flex w-full border border-udir-gray" />
                             </div>
 
-                            <div className="flex h-full flex-col">
+                            <div className="flex h-full flex-col bg-udir-black text-udir-white">
                                 <h2 className="!mb-0 hidden px-5 pb-5 text-base font-semibold">
                                     Moduler
                                 </h2>
 
-                                <div className="flex w-full flex-col overflow-auto pb-56">
-                                    {[1, 2, 3, 4].map(module => (
-                                        <div key={module} className="mb-5">
-                                            <div className="flex w-full items-center justify-between bg-gray-700 px-5 py-4 text-udir-gray">
-                                                <h3 className="!mb-0 text-base">
-                                                    {module}. Om kunstig intelligens i skolen
-                                                </h3>
-
-                                                <p className="!mb-0 text-xs">3 av 5 leksjoner</p>
-                                            </div>
-
-                                            <ul className="list-none !pb-0 !pl-5">
-                                                {[1, 2, 3, 4, 5].map(page => (
-                                                    <li
-                                                        key={page}
-                                                        className="flex items-center justify-between px-5 py-3"
-                                                    >
-                                                        <div className="flex items-start justify-start">
-                                                            <span className="mr-2 text-udir-gray">
-                                                                <TasklistIcon fontSize="24px" />
-                                                            </span>
-
-                                                            <div className="flex flex-col">
-                                                                <h4 className="!mb-1 text-sm font-semibold">
-                                                                    {module}.1 Råd om kunstig
-                                                                    intelligens i skolen
-                                                                </h4>
-
-                                                                <p className="!mb-0 text-xs">
-                                                                    Oppgave
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <span className="rounded-full bg-udir-black p-1 text-udir-gray">
-                                                            <CheckmarkIcon fontSize="20px" />
-                                                        </span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                                <div className="flex w-full flex-col overflow-auto pb-64">
+                                    {modules.map(module => (
+                                        <Module
+                                            key={module.id}
+                                            courseID={courseID}
+                                            locale={locale}
+                                            module={module}
+                                            darkMode
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -125,7 +94,7 @@ function Content({
 
                                 <div className="mb-5 flex w-full flex-row items-center justify-start">
                                     <BaseLink
-                                        className="mt-5 flex items-center justify-center rounded-md bg-udir-black px-4 py-2 text-udir-white no-underline"
+                                        className="mt-5 flex items-center justify-center rounded-md bg-udir-black px-3 py-2 text-udir-white no-underline"
                                         href={getTranslatedPath('/courses/:courseID/', locale, {
                                             courseID: courseID.toString(),
                                         })}
@@ -135,7 +104,7 @@ function Content({
                                             <ArrowLeftIcon fontSize="18px" />
                                         </span>
 
-                                        <p className="mb-0 text-xs">Tilbake til oversikten</p>
+                                        <p className="mb-0 text-xs">Tilbake til hovedoversikten</p>
                                     </BaseLink>
                                 </div>
                             </div>
@@ -145,7 +114,7 @@ function Content({
                     </div>
                 </div>
             </div>
-        </Empty>
+        </EmptyLayout>
     );
 }
 

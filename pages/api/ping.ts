@@ -21,7 +21,7 @@ export type IPingRes =
 
 /**
  * @swagger
- * /ping:
+ * /ping/:
  *   get:
  *     summary: Status
  *     description: Check the status of the server and integrations.

@@ -82,7 +82,7 @@ export const OpenAPIResSchema = z
             schemas: z.object({}),
         }),
         paths: z.object({
-            '/openapi': z.object({
+            '/openapi/': z.object({
                 get: z.object({
                     summary: z.string().openapi({ example: 'OpenAPI v3' }),
                     description: z

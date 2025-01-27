@@ -1,10 +1,4 @@
-import {
-    PlayFillIcon,
-    TasklistIcon,
-    CheckmarkIcon,
-    XMarkIcon,
-    MinusIcon,
-} from '@navikt/aksel-icons';
+import { PlayFillIcon, TasklistIcon, CheckmarkIcon, XMarkIcon } from '@navikt/aksel-icons';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 
@@ -17,7 +11,7 @@ import {
     IKPASCourseModuleItem,
 } from '@/integrations/kpas/v1/export';
 import BaseLink from '@/shared/components/BaseLink';
-import Default, { Props } from '@/shared/layouts/Default';
+import DefaultLayout, { Props } from '@/shared/layouts/Default';
 import { getObjectTranslation, getTranslatedPath } from '@/shared/utils/language';
 
 interface IModuleItemProps {
@@ -25,9 +19,37 @@ interface IModuleItemProps {
     moduleItem: IKPASCourseModuleItem;
     locale: string;
     isLast: boolean;
+    darkMode?: boolean;
 }
 
-function ModuleItem({ courseID, moduleItem, locale, isLast }: IModuleItemProps) {
+function ModuleItemLink({
+    courseID,
+    moduleItem,
+    darkMode,
+    locale,
+    children,
+}: IModuleItemProps & { children: React.ReactNode }) {
+    if (moduleItem.type !== 'page')
+        return <div className="mr-5 flex items-start justify-start">{children}</div>;
+
+    return (
+        <BaseLink
+            className={clsx(
+                'mr-5 flex items-start justify-start',
+                darkMode ? 'text-udir-white' : 'text-udir-black',
+            )}
+            href={getTranslatedPath('/courses/:courseID/:courseSlugID/', locale, {
+                courseID: courseID.toString(),
+                courseSlugID: encodeURIComponent(moduleItem.slugID ?? 'missing-slug-id'),
+            })}
+            locale={locale}
+        >
+            {children}
+        </BaseLink>
+    );
+}
+
+function ModuleItem({ courseID, moduleItem, locale, isLast, darkMode = false }: IModuleItemProps) {
     return (
         <li
             key={moduleItem.id}
@@ -36,15 +58,14 @@ function ModuleItem({ courseID, moduleItem, locale, isLast }: IModuleItemProps) 
                 !isLast && 'border-b-2 border-udir-gray',
             )}
         >
-            <BaseLink
-                className="mr-5 flex items-start justify-start"
-                href={getTranslatedPath('/courses/:courseID/:courseSlugID/', locale, {
-                    courseID: courseID.toString(),
-                    courseSlugID: encodeURIComponent(moduleItem.slugID ?? 'missing-slug-id'),
-                })}
+            <ModuleItemLink
+                courseID={courseID}
+                darkMode={darkMode}
+                isLast={isLast}
                 locale={locale}
+                moduleItem={moduleItem}
             >
-                <span className="mr-2 text-udir-black">
+                <span className={clsx('mr-2', darkMode ? 'text-udir-white' : 'text-udir-black')}>
                     <TasklistIcon fontSize="24px" />
                 </span>
 
@@ -55,7 +76,7 @@ function ModuleItem({ courseID, moduleItem, locale, isLast }: IModuleItemProps) 
 
                     <p className="!mb-0 text-sm">{moduleItem.type}</p>
                 </div>
-            </BaseLink>
+            </ModuleItemLink>
 
             {moduleItem.requirement != null && moduleItem.type === 'page' && (
                 <span className="rounded-full bg-udir-success p-1 text-udir-white">
@@ -64,14 +85,8 @@ function ModuleItem({ courseID, moduleItem, locale, isLast }: IModuleItemProps) 
             )}
 
             {moduleItem.requirement != null && moduleItem.type !== 'page' && (
-                <span className="rounded-full bg-udir-error p-1 text-udir-white">
-                    <XMarkIcon fontSize="20px" />
-                </span>
-            )}
-
-            {moduleItem.requirement == null && (
                 <span className="rounded-full bg-udir-gray p-1 text-udir-black">
-                    <MinusIcon fontSize="20px" />
+                    <XMarkIcon fontSize="20px" />
                 </span>
             )}
         </li>
@@ -84,7 +99,7 @@ interface IModuleItemHeaderProps {
 
 function ModuleItemHeader({ title }: IModuleItemHeaderProps) {
     return (
-        <li className="flex items-center justify-between border-y-2 border-udir-gray bg-udir-gray px-5 py-2">
+        <li className="flex items-center justify-between border-y-2 border-udir-gray bg-udir-gray px-5 py-2 text-udir-black">
             <h4 className="!mb-0 text-sm">{title}</h4>
         </li>
     );
@@ -94,15 +109,36 @@ interface IModuleProps {
     courseID: number;
     module: IKPASCourseModule;
     locale: string;
+    darkMode?: boolean;
 }
 
-function Module({ courseID, module, locale }: IModuleProps) {
+export function Module({ courseID, module, locale, darkMode = false }: IModuleProps) {
+    const moduleItemsCompletedCount =
+        module.items.filter(item => item.requirement === null || item.type === 'page').length ?? 0;
+    const moduleItemsTotalCount = module.items.length ?? 0;
+
     return (
-        <div className="mb-5 rounded-md border-2 border-udir-gray">
+        <div
+            className={clsx(
+                darkMode
+                    ? 'bg-udir-black text-udir-white'
+                    : 'mb-5 rounded-md border-2 border-udir-gray',
+            )}
+        >
             <div className="flex w-full items-center justify-between bg-udir-gray px-5 py-4 text-udir-black">
                 <h3 className="!mb-0 mr-5 text-lg">{getObjectTranslation(locale, module.title)}</h3>
 
-                <p className="!mb-0 text-sm">3 av 5 leksjoner</p>
+                <p className="!mb-0 flex flex-col text-end text-sm">
+                    {moduleItemsCompletedCount >= moduleItemsTotalCount ? (
+                        <span className="rounded-full bg-udir-success p-1 text-udir-white">
+                            <CheckmarkIcon fontSize="20px" />
+                        </span>
+                    ) : (
+                        <span>
+                            ({moduleItemsCompletedCount}/{moduleItemsTotalCount})
+                        </span>
+                    )}
+                </p>
             </div>
 
             <ul className="list-none !pb-0 !pl-0">
@@ -123,6 +159,7 @@ function Module({ courseID, module, locale }: IModuleProps) {
                         <ModuleItem
                             key={moduleItem.id}
                             courseID={courseID}
+                            darkMode={darkMode}
                             isLast={isLast}
                             locale={locale}
                             moduleItem={moduleItem}
@@ -141,6 +178,7 @@ interface HomeProps extends Props {
     description?: string;
     thumbnail: IKPASCourseImage;
     categories: IKPASCourseCategory[];
+    languages: string[];
     modules: IKPASCourseModule[];
     enrollment: IEnrollmentState;
     updateEnrollment: () => void;
@@ -158,6 +196,7 @@ function Home({
     description,
     thumbnail,
     categories,
+    languages,
     modules,
     enrollment,
     updateEnrollment,
@@ -166,12 +205,13 @@ function Home({
 
     const localeName = router.locale ?? 'nb';
     const hasTranslation = localeName === locale;
+    const firstModuleItem = modules[0]?.items?.find(item => item.type === 'page') ?? null;
 
     const { enrolled, requirements } = enrollment;
     const { completed, total } = requirements;
 
     return (
-        <Default
+        <DefaultLayout
             className={clsx('course-layout-home', className ?? false)}
             id={id}
             mainClassName={mainClassName}
@@ -183,6 +223,7 @@ function Home({
                 description={description}
                 enrollment={enrollment}
                 hasTranslation={hasTranslation}
+                languages={languages}
                 thumbnail={thumbnail}
                 title={title}
                 updateEnrollment={updateEnrollment}
@@ -191,15 +232,25 @@ function Home({
             <div className="mx-5 flex flex-col">
                 <div className="mx-auto mb-28 mt-10 flex w-full flex-col xl:max-w-7xl xl:flex-row-reverse">
                     <div className="flex grow flex-col pb-5 xl:max-w-2xl">
-                        {enrolled && (
-                            <a
+                        {enrolled && firstModuleItem !== null && (
+                            <BaseLink
                                 className="mb-8 flex w-full items-center justify-between rounded-md border-2 border-udir-white bg-udir-black px-5 py-4 text-udir-white no-underline"
-                                href="/"
+                                href={getTranslatedPath(
+                                    '/courses/:courseID/:courseSlugID/',
+                                    locale,
+                                    {
+                                        courseID: courseID.toString(),
+                                        courseSlugID: encodeURIComponent(
+                                            firstModuleItem.slugID ?? 'missing-slug-id',
+                                        ),
+                                    },
+                                )}
+                                locale={locale}
                             >
                                 <div className="mr-5">
                                     <p className="!mb-0.5 text-base font-bold">
-                                        Forsett med &quot;2.1 Råd om kunstig intelligens i
-                                        skolen&quot;
+                                        Forsett med &quot;
+                                        {getObjectTranslation(locale, firstModuleItem.title)}&quot;
                                     </p>
 
                                     <p className="!mb-0 text-sm">
@@ -210,7 +261,7 @@ function Home({
                                 <span className="rounded-full bg-udir-white p-1.5 text-udir-black">
                                     <PlayFillIcon fontSize="24px" />
                                 </span>
-                            </a>
+                            </BaseLink>
                         )}
 
                         <div className="w-full">{children}</div>
@@ -232,7 +283,7 @@ function Home({
                     </div>
                 </div>
             </div>
-        </Default>
+        </DefaultLayout>
     );
 }
 

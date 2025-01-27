@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
+import { createCache } from 'async-cache-dedupe';
 import getConfig from 'next/config';
 
 import { apiResponse, IResponse, IResponseMessage } from '@/integrations/apiFetch';
@@ -74,3 +75,9 @@ export const resHandler = <TBody>(res: IKPASResponse<TBody>): IResponse<TBody | 
     returnRes.payload = res.result ?? null;
     return returnRes;
 };
+
+export const cacheHandler = createCache({
+    ttl: 1 * 60, // 1 minute
+    stale: 60 * 60, // 60 minutes
+    storage: { type: 'memory', options: { size: 2048 } },
+});

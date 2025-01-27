@@ -8,7 +8,16 @@ import {
     IKPASCourseCategory,
     IKPASCourseImage,
 } from '@/integrations/kpas/v1/export';
+import { languageMap } from '@/pages/courses';
 import { DefaultProps } from '@/shared/interfaces/react';
+
+function LanguageLabel({ language }: { language: string }) {
+    return (
+        <li className="flex items-center justify-center rounded-xl bg-udir-white px-3 py-1 text-center text-sm">
+            {languageMap[language] ?? language}
+        </li>
+    );
+}
 
 interface ILabelProps {
     category: IKPASCourseCategory;
@@ -16,7 +25,7 @@ interface ILabelProps {
 
 function CourseLabel({ category }: ILabelProps) {
     return (
-        <li className="tag rounded-lg bg-udir-white px-4 py-1.5 text-udir-black">
+        <li className="flex items-center justify-center rounded-xl bg-udir-white px-3 py-1 text-center text-sm">
             {category?.title}
         </li>
     );
@@ -28,6 +37,7 @@ interface Props extends DefaultProps {
     thumbnail: IKPASCourseImage;
     hasTranslation?: boolean;
     categories: IKPASCourseCategory[];
+    languages: string[];
     enrollment: IEnrollmentState;
     updateEnrollment: () => void;
 }
@@ -40,6 +50,7 @@ function Banner({
     thumbnail,
     hasTranslation,
     categories,
+    languages,
     enrollment,
     updateEnrollment,
 }: Props) {
@@ -76,36 +87,48 @@ function Banner({
 
                     <p className="text-base">{description ?? ''}</p>
 
-                    <div className="mx-auto flex max-w-7xl items-center justify-start">
-                        {!enrollment.enrolled && (
-                            <button
-                                className="mt-5 rounded-md bg-udir-black px-6 py-3 text-udir-white"
-                                type="button"
-                                onClick={updateEnrollment}
-                            >
-                                Meld deg på
-                            </button>
-                        )}
+                    <div className="mx-auto flex max-w-7xl flex-col items-start justify-center">
+                        <div className="mb-3 mt-5 flex items-center justify-center">
+                            <h3 className="mr-3 text-sm">Tilgjengeglig språk:</h3>
 
-                        {enrollment.enrolled && (
-                            <>
-                                <button
-                                    className="mr-5 mt-5 rounded-md bg-udir-black px-6 py-3 text-udir-white"
-                                    type="button"
-                                    onClick={() => {}}
-                                >
-                                    Bytt rolle og grupper
-                                </button>
+                            <ul className="mb-3 flex list-none flex-wrap gap-2 !pb-0 !pl-0">
+                                {languages.map(lang => (
+                                    <LanguageLabel key={lang} language={lang} />
+                                ))}
+                            </ul>
+                        </div>
 
+                        <div className="flex items-center justify-start">
+                            {!enrollment.enrolled && (
                                 <button
-                                    className="mt-5 rounded-md underline"
+                                    className="rounded-md bg-udir-black px-6 py-3 text-udir-white"
                                     type="button"
                                     onClick={updateEnrollment}
                                 >
-                                    Meld deg av
+                                    Meld deg på
                                 </button>
-                            </>
-                        )}
+                            )}
+
+                            {enrollment.enrolled && (
+                                <>
+                                    <button
+                                        className="mr-5 rounded-md bg-udir-black px-6 py-3 text-udir-white"
+                                        type="button"
+                                        onClick={() => {}}
+                                    >
+                                        Bytt rolle og grupper
+                                    </button>
+
+                                    <button
+                                        className="rounded-md underline"
+                                        type="button"
+                                        onClick={updateEnrollment}
+                                    >
+                                        Meld deg av
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
 

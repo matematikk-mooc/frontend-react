@@ -68,7 +68,7 @@ const getBreadcrumbs = (
             name: t('common:breadcrumbs_courses'),
             url: getTranslatedPath(templateName, locale, routerQuery),
         });
-    } else if (routerPath === '/courses/[...courseID]') {
+    } else if (routerPath === '/courses/[courseID]') {
         breadcrumbs.push({
             id: 2,
             name: t('common:breadcrumbs_courses'),

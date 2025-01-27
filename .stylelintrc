@@ -13,6 +13,12 @@
             {
                 "ignoreAtRules": ["tailwind", "apply", "variants", "responsive", "screen"]
             }
+        ],
+        "at-rule-no-deprecated": [
+            true,
+            {
+                "ignoreAtRules": ["apply"]
+            }
         ]
     }
 }

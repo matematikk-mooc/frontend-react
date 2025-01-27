@@ -6,18 +6,17 @@ import { createSwaggerSpec } from 'next-swagger-doc';
 import { apiResponse, IResponse } from '@/integrations/apiFetch';
 import { KPASCoursesResSchema } from '@/pages/api/kpas/v1/courses';
 import { KPASCourseResSchema } from '@/pages/api/kpas/v1/courses/[courseID]';
+import { KPASCourseModulesResSchema } from '@/pages/api/kpas/v1/courses/[courseID]/modules';
+import { KPASCoursePageResSchema } from '@/pages/api/kpas/v1/courses/[courseID]/pages/[pageSlug]';
 import { PingResSchema } from '@/pages/api/ping';
 import { IOpenAPIRes, OpenAPIResSchema, openAPIDefinition } from '@/shared/utils/openapi';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
-
-import { KPASCourseModulesResSchema } from './kpas/v1/courses/[courseID]/modules';
-import { KPASCoursePageResSchema } from './kpas/v1/courses/[courseID]/pages/[pageSlug]';
 
 const { publicRuntimeConfig } = getConfig() || {};
 
 /**
  * @swagger
- * /openapi:
+ * /openapi/:
  *   get:
  *     summary: OpenAPI v3
  *     description: Retrieve OpenAPI v3 specification.
@@ -67,8 +66,10 @@ const handler = async (
         };
 
         if (publicRuntimeConfig.APP_ENV === 'local') {
+            const PORT = process.env.PORT ?? 3000;
+
             specificationRes.servers.unshift({
-                url: 'http://localhost:3000/api',
+                url: `http://localhost:${PORT}/api`,
                 description: 'Local',
             });
         } else if (publicRuntimeConfig.APP_ENV === 'production') {

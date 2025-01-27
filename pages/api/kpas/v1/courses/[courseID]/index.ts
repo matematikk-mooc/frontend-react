@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { apiResponse, IResponse, responseSchema } from '@/integrations/apiFetch';
 import { resHandler } from '@/integrations/kpas/kpasFetch';
-import { getCourse, KPASCourseSchema, IKPASCourse } from '@/integrations/kpas/v1/export';
+import { getCourseWithCache, KPASCourseSchema, IKPASCourse } from '@/integrations/kpas/v1/export';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
 import z from '@/shared/utils/validate';
 
@@ -15,7 +15,7 @@ export type IKPASCourseRes = z.infer<typeof KPASCourseResSchema> | IResponse<nul
 
 /**
  * @swagger
- * /kpas/v1/courses/{course_id}:
+ * /kpas/v1/courses/{course_id}/:
  *   get:
  *     summary: Course
  *     description: Retrieve a course by ID.
@@ -61,7 +61,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<IKPASCourseRes>
             return res.status(courseRes.statusCode).json(courseRes);
         }
 
-        const course = await getCourse(courseIdNumber);
+        const course = await getCourseWithCache(courseIdNumber);
         const kpasRes = resHandler<IKPASCourse>(course);
 
         if (!kpasRes.error) {

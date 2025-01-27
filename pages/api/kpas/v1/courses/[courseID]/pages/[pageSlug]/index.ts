@@ -5,7 +5,7 @@ import { resHandler } from '@/integrations/kpas/kpasFetch';
 import {
     KPASCoursePageSchema,
     IKPASCoursePage,
-    getCoursePage,
+    getCoursePageWithCache,
 } from '@/integrations/kpas/v1/export';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
 import z from '@/shared/utils/validate';
@@ -19,7 +19,7 @@ export type IKPASCoursePageRes = z.infer<typeof KPASCoursePageResSchema>;
 
 /**
  * @swagger
- * /kpas/v1/courses/{course_id}/pages/{page_slug}:
+ * /kpas/v1/courses/{course_id}/pages/{page_slug_id}/:
  *   get:
  *     summary: Course Page
  *     description: Retrieve course page.
@@ -33,7 +33,7 @@ export type IKPASCoursePageRes = z.infer<typeof KPASCoursePageResSchema>;
  *         schema:
  *           type: integer
  *           default: 360
- *       - name: page_slug
+ *       - name: page_slug_id
  *         in: path
  *         required: true
  *         description: Slug of the page
@@ -93,7 +93,7 @@ const handler = async (
             return res.status(coursePageRes.statusCode).json(coursePageRes);
         }
 
-        const coursePage = await getCoursePage(courseIdNumber, pageSlugString);
+        const coursePage = await getCoursePageWithCache(courseIdNumber, pageSlugString);
         const kpasRes = resHandler<IKPASCoursePage | null>(coursePage);
 
         if (!kpasRes.error) {

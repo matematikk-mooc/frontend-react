@@ -3,8 +3,7 @@ import getConfig from 'next/config';
 import { ZodSchema } from 'zod';
 
 import { apiResponse, IResponse, IResponseMessage } from '@/integrations/apiFetch';
-
-import { parseErrorMessage } from './validate';
+import { parseErrorMessage } from '@/shared/utils/validate';
 
 const { publicRuntimeConfig } = getConfig() || {};
 

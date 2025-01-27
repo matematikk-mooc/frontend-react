@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 
 import apiFetch from '@/integrations/apiFetch';
-import { IKPASResponse } from '@/integrations/kpas/kpasFetch';
+import { IKPASResponse, cacheHandler } from '@/integrations/kpas/kpasFetch';
 import z from '@/shared/utils/validate';
 
 const { publicRuntimeConfig } = getConfig() || {};
@@ -18,6 +18,9 @@ export const getCourses = async () => {
     const apiPath = `/export/courses`;
     return apiFetch<IKPASResponse<number[]>>(publicRuntimeConfig.KPAS_API_URL, apiPath);
 };
+
+const getCoursesCacheInstance = cacheHandler.define('getCourses', getCourses);
+export const getCoursesWithCache = async () => getCoursesCacheInstance.getCourses();
 
 export const KPASCourseCategorySchema = z
     .strictObject({
@@ -76,6 +79,10 @@ export const getCourse = async (courseID: number) => {
     return apiFetch<IKPASResponse<IKPASCourse>>(publicRuntimeConfig.KPAS_API_URL, apiPath);
 };
 
+const getCourseCacheInstance = cacheHandler.define('getCourse', getCourse);
+export const getCourseWithCache = async (courseID: number) =>
+    getCourseCacheInstance.getCourse(courseID);
+
 export const KPASCourseModuleItemSchema = z
     .strictObject({
         id: z.number().openapi({ example: 52000 }),
@@ -114,6 +121,10 @@ export const getCourseModules = async (courseID: number) => {
     return apiFetch<IKPASResponse<IKPASCourseModule[]>>(publicRuntimeConfig.KPAS_API_URL, apiPath);
 };
 
+const getCourseModulesCacheInstance = cacheHandler.define('getCourseModules', getCourseModules);
+export const getCourseModulesWithCache = async (courseID: number) =>
+    getCourseModulesCacheInstance.getCourseModules(courseID);
+
 export const KPASCoursePageSchema = z
     .strictObject({
         id: z.number().openapi({ example: 25000 }),
@@ -141,3 +152,11 @@ export const getCoursePage = async (courseID: number, pageSlug: string) => {
         apiPath,
     );
 };
+
+const getCoursePageCacheInstance = cacheHandler.define(
+    'getCoursePage',
+    { serialize: args => JSON.stringify(args) },
+    async ({ courseID, pageSlug }) => getCoursePage(courseID, pageSlug),
+);
+export const getCoursePageWithCache = async (courseID: number, pageSlug: string) =>
+    getCoursePageCacheInstance.getCoursePage({ courseID, pageSlug });

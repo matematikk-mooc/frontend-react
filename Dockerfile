@@ -15,8 +15,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 RUN corepack enable pnpm && NODE_ENV=development pnpm i --frozen-lockfile
-RUN corepack enable pnpm && pnpm run build
-RUN corepack enable pnpm && rm -R node_modules && pnpm i --frozen-lockfile --prod
+RUN pnpm run build
+RUN pnpm prune --prod
 
 FROM base AS runner
 WORKDIR /app
@@ -24,17 +24,19 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs \
+RUN corepack enable pnpm \
+    && addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./.node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./
-COPY --from=builder --chown=nextjs:nodejs /app/locales.mjs ./
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/locales.js ./
 COPY --from=builder --chown=nextjs:nodejs /app/next-i18next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/next-i18next.config.d.ts ./
 
 USER nextjs
 EXPOSE 8080

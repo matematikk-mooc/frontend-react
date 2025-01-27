@@ -1,10 +1,10 @@
 import dsTailwind from '@navikt/ds-tailwind';
+import type { Config } from 'tailwindcss';
 
-const hoverFocusPlugin = ({ addVariant }) => {
+const hoverFocusPlugin = ({ addVariant }: Config) => {
     addVariant('hover-focus', ['&:hover', '&:focus']);
 };
 
-/** @type {import('tailwindcss/tailwind-config')} */
 const config = {
     mode: 'jit',
     presets: [dsTailwind],
