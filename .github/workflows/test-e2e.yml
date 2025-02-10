@@ -85,20 +85,23 @@ jobs:
                       --name ${{ inputs.docker_image }} \
                       -e PORT=${{ inputs.port }} \
                       -e APP_ENV=${{ inputs.app_env }} \
+                      -e BFF_API_URL=http://localhost:${{ inputs.port }}/api \
+                      -e KPAS_API_URL=${{ inputs.app_env == 'production' && 'https://kpas.kompetanse.udir.no/api' || 'https://kpas.staging.kompetanse.udir.no/api' }} \
                       -p ${{ inputs.port }}:${{ inputs.port }} \
                       ${{ inputs.docker_registry }}/${{ inputs.docker_image }}:CI-${{ github.sha }}
 
             - name: Wait for application readiness
-              if: ${{ inputs.test_suite == 'headless' }}
               run: |
-                  for i in {1..10}; do
-                      if curl -s http://localhost:${{ inputs.port }}${{ inputs.ping_path }} >/dev/null; then
+                  for i in {1..30}; do
+                      if curl -fs http://localhost:${{ inputs.port }}${{ inputs.ping_path }} >/dev/null; then
                           echo "Application is ready";
                           exit 0;
                       fi
+
                       echo "Waiting for application...";
                       sleep 2;
                   done
+
                   echo "Application failed to start"; exit 1;
 
             - name: Setup Cache for pnpm

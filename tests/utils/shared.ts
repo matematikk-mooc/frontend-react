@@ -14,7 +14,7 @@ export const getEnv = () => {
     expect(env).toBeDefined();
 
     const validEnvironments = ['stage', 'production'];
-    if (env === 'development') env = 'stage';
+    if (env === 'local' || env === 'development') env = 'stage';
     expect(validEnvironments).toContain(env);
 
     return env;

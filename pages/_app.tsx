@@ -4,9 +4,6 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { appWithTranslation } from 'next-i18next';
 
-// eslint-disable-next-line import/extensions, @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-// eslint-disable-next-line import/extensions
 import nextI18NextConfig from '../next-i18next.config.js';
 
 function App({ Component, pageProps }: AppProps) {
@@ -28,7 +25,6 @@ function App({ Component, pageProps }: AppProps) {
                 <meta content="#ffffff" name="theme-color" />
             </Head>
 
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
             <Component {...pageProps} />
         </>
     );

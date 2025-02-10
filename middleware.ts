@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { getTemplateName, getTranslatedPath } from '@/shared/utils/language';
+import { captureException } from '@/shared/utils/sentry';
 
 export function middleware(req: NextRequest) {
     const { pathname, locale } = req.nextUrl;
@@ -13,17 +14,22 @@ export function middleware(req: NextRequest) {
         if (pathname !== translatedPath) {
             return NextResponse.redirect(new URL(translatedPath, req.url));
         }
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            throw new Error(`Error in middleware: ${error?.message ?? 'Unknown error'}`);
-        } else {
-            throw new Error('Error in middleware: Unknown error');
-        }
+    } catch (error) {
+        captureException('VLV54d', error);
+        throw error;
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/about/', '/contact/', '/privacy/'],
+    matcher: [
+        '/about/',
+        '/contact/',
+        '/privacy/',
+        '/courses/',
+        // TODO: Review how to handle dynamic routes redirection
+        // '/courses/:courseID/',
+        // '/courses/:courseID/:courseSlugID/',
+    ],
 };

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { i18n, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-import Article from '@/features/content/layouts/Article';
+import ContentArticleLayout from '@/features/content/layouts/Article';
 import ExternalLink from '@/shared/components/ExternalLink';
 import { getTemplateName, getTranslatedPath } from '@/shared/utils/language';
 
@@ -36,7 +36,7 @@ function Privacy() {
                 <meta content="nofollow,noindex" name="robots" />
             </Head>
 
-            <Article
+            <ContentArticleLayout
                 description={t('privacy:page_description')}
                 locale={localeName}
                 template="privacy"
@@ -203,20 +203,16 @@ function Privacy() {
                         .
                     </p>
                 </div>
-            </Article>
+            </ContentArticleLayout>
         </>
     );
 }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
     if (process.env.NODE_ENV !== 'production') await i18n?.reloadResources();
+    const translations = await serverSideTranslations(locale ?? 'nb', ['common', 'privacy'], null);
 
-    return {
-        revalidate: 60,
-        props: {
-            ...(await serverSideTranslations(locale ?? 'nb', ['common', 'privacy'], null)),
-        },
-    };
+    return { revalidate: 60, props: { ...translations } };
 };
 
 export default Privacy;

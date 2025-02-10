@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable import/no-unresolved */
 const ChainedBackend = require('i18next-chained-backend').default;
-const HttpBackend = require('i18next-http-backend/cjs');
+const HttpBackend = require('i18next-http-backend').default;
 const LocalStorageBackend = require('i18next-localstorage-backend').default;
 
+const appEnv = process.env.APP_ENV ?? 'development';
 const isBrowser = typeof window !== 'undefined';
-const isDev = process.env.NODE_ENV !== 'production';
+const isLocal = appEnv === 'local';
 
 /** @type {import('next-i18next').UserConfig} */
 const config = {
     backend: {
-        backendOptions: [{ expirationTime: isDev ? 0 : 60 * 60 * 1000 }, {}], // 1 hour
+        backendOptions: [{ expirationTime: isLocal ? 0 : 60 * 60 * 1000 }, {}], // 1 hour
         backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
     },
     partialBundledLanguages: isBrowser && true,

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 
-import Default, { Props } from '@/shared/layouts/Default';
+import DefaultLayout, { Props } from '@/shared/layouts/Default';
 
 interface ArticleProps extends Props {
     title: string;
@@ -28,7 +28,7 @@ function Article({
     const hasTranslation = localeName === locale;
 
     return (
-        <Default
+        <DefaultLayout
             className={clsx('content-layout-article', className ?? false)}
             id={id}
             mainClassName={mainClassName}
@@ -53,7 +53,7 @@ function Article({
                     </div>
                 </div>
             </div>
-        </Default>
+        </DefaultLayout>
     );
 }
 

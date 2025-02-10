@@ -1,10 +1,10 @@
 import dsTailwind from '@navikt/ds-tailwind';
+import { type Config } from 'tailwindcss';
 
-const hoverFocusPlugin = ({ addVariant }) => {
+const hoverFocusPlugin = ({ addVariant }: Config) => {
     addVariant('hover-focus', ['&:hover', '&:focus']);
 };
 
-/** @type {import('tailwindcss/tailwind-config')} */
 const config = {
     mode: 'jit',
     presets: [dsTailwind],
@@ -26,6 +26,11 @@ const config = {
                 'udir-black': '#303030',
                 'udir-white': '#ffffff',
                 'udir-gray': '#eaeaea',
+
+                'udir-success': '#3b7858',
+                'udir-error': '#db0001',
+
+                'udir-theme-gray': '#eaeaf5',
             },
         },
     },

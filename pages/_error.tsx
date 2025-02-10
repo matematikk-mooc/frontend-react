@@ -6,7 +6,8 @@ import { i18n, useTranslation, withTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
 import ErrorComponent from '@/shared/components/Error';
-import Default from '@/shared/layouts/Default';
+import DefaultLayout from '@/shared/layouts/Default';
+import { captureException } from '@/shared/utils/sentry';
 
 function Error() {
     const { t, ready } = useTranslation(['common']);
@@ -15,8 +16,7 @@ function Error() {
         try {
             throw new DOMException('500: Internal Server Error');
         } catch (error) {
-            const eventId = Sentry.captureException(error);
-            Sentry.showReportDialog({ eventId });
+            captureException('7rXIzq', error, []);
         }
 
         return () => {
@@ -33,14 +33,14 @@ function Error() {
                 <meta content="nofollow,noindex" name="robots" />
             </Head>
 
-            <Default mainClassName="justify-center items-center" template="500">
+            <DefaultLayout mainClassName="justify-center items-center" template="500">
                 <div className="px-5">
                     <ErrorComponent
                         description={t('common:500_description')}
                         title={t('common:500_title')}
                     />
                 </div>
-            </Default>
+            </DefaultLayout>
         </>
     );
 }

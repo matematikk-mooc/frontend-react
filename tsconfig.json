@@ -39,11 +39,16 @@
     },
 
     "include": [
+        "eslint.config.mjs",
+        "postcss.config.js",
+        "tailwind.config.ts",
+
         "next-i18next.config.js",
-        "locales.mjs",
-        "next.config.mjs",
-        "postcss.config.mjs",
-        "tailwind.config.mjs",
+        "next-i18next.config.d.ts",
+        "locales.js",
+        "locales.d.ts",
+
+        "next.config.ts",
         "next-env.d.ts",
         "**/*.ts",
         "**/*.tsx"

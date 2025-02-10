@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { i18n, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-import Article from '@/features/content/layouts/Article';
+import ContentArticleLayout from '@/features/content/layouts/Article';
 import { getTemplateName, getTranslatedPath } from '@/shared/utils/language';
 
 const AccordionItem = Accordion.Item;
@@ -35,7 +35,7 @@ function Contact() {
                 <meta content="nofollow,noindex" name="robots" />
             </Head>
 
-            <Article
+            <ContentArticleLayout
                 description="Velkommen til Kompetanseportalen - en plattform utviklet av Utdanningsdirektoratet i samarbeid med flere universiteter og høgskoler."
                 locale="nb"
                 template="contact"
@@ -122,20 +122,16 @@ function Contact() {
                         <a href="mailto:kompetansesupport@udir.no">kompetansesupport@udir.no</a>.
                     </p>
                 </div>
-            </Article>
+            </ContentArticleLayout>
         </>
     );
 }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
     if (process.env.NODE_ENV !== 'production') await i18n?.reloadResources();
+    const translations = await serverSideTranslations(locale ?? 'nb', ['common', 'contact'], null);
 
-    return {
-        revalidate: 60,
-        props: {
-            ...(await serverSideTranslations(locale ?? 'nb', ['common', 'contact'], null)),
-        },
-    };
+    return { revalidate: 60, props: { ...translations } };
 };
 
 export default Contact;

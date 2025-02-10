@@ -52,7 +52,8 @@ Sentry.init({
 
     debug: false,
     environment: publicRuntimeConfig.APP_ENV,
-    dsn: publicRuntimeConfig.SENTRY_DSN,
+    release: publicRuntimeConfig.APP_VERSION,
+    dsn: publicRuntimeConfig.APP_ENV !== 'local' ? publicRuntimeConfig.SENTRY_DSN : undefined,
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1,
     tracesSampleRate: 1,

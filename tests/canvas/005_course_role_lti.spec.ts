@@ -28,7 +28,6 @@ test.describe('5. Course Role LTI | Canvas', async () => {
         }
     });
 
-    // eslint-disable-next-line no-empty-pattern
     test('5.1 Rolle og grupper', async ({}, testInfo) => {
         if (getEnv() === 'stage') test.skip(); // BUG: Disable test for now, ref: https://udir.sentry.io/issues/17338611
 
@@ -61,7 +60,6 @@ test.describe('5. Course Role LTI | Canvas', async () => {
         );
     });
 
-    // eslint-disable-next-line no-empty-pattern
     test('5.2 Undersøkelse', async ({}, testInfo) => {
         if (getEnv() === 'stage') test.skip(); // BUG: Disable test for now, ref: https://udir.sentry.io/issues/17338611
 
@@ -81,7 +79,6 @@ test.describe('5. Course Role LTI | Canvas', async () => {
         await survey(iframeElement);
     });
 
-    // eslint-disable-next-line no-empty-pattern
     test('5.3 Dashboard', async ({}, testInfo) => {
         if (getEnv() === 'stage') test.skip(); // BUG: Disable test for now, ref: https://udir.sentry.io/issues/17338611
 

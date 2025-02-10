@@ -5,7 +5,11 @@ import Breadcrumbs from '@/shared/components/Breadcrumbs';
 import TopNavigation from '@/shared/components/TopNavigation';
 import { DefaultProps } from '@/shared/interfaces/react';
 
-function Header({ id, className }: DefaultProps) {
+export interface Props extends DefaultProps {
+    title?: string;
+}
+
+function Header({ id, className, title }: Props) {
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
@@ -36,7 +40,7 @@ function Header({ id, className }: DefaultProps) {
 
             <span className="flex w-full border-b-2 border-udir-black" />
 
-            <Breadcrumbs className="max-sm:hidden" />
+            <Breadcrumbs className="max-sm:hidden" title={title} />
         </header>
     );
 }
