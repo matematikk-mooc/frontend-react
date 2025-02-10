@@ -14,7 +14,8 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN corepack enable pnpm && NODE_ENV=development pnpm i --frozen-lockfile
+RUN npm install -g pnpm
+RUN NODE_ENV=development pnpm i --frozen-lockfile
 RUN pnpm run build
 RUN pnpm prune --prod
 
@@ -23,8 +24,10 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+# https://r1ch.net/blog/node-v20-aggregateeerror-etimedout-happy-eyeballs
+ENV NODE_OPTIONS="--network-family-autoselection-attempt-timeout 2500 --dns-result-order ipv4first"
 
-RUN corepack enable pnpm \
+RUN npm install -g pnpm \
     && addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
