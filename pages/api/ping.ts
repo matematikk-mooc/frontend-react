@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { apiResponse, IResponse, responseSchema } from '@/integrations/apiFetch';
@@ -93,6 +94,12 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse<IPingRes>) => 
         captureException('EeHZfJ', new Error('Failed to validate ping response schema.'));
     }
 
+    Sentry.addBreadcrumb({
+        category: 'ping.response',
+        message: `Ping response: ${pingRes.statusCode}`,
+        data: { ...pingRes },
+        level: pingRes.error ? 'error' : 'info',
+    });
     return res.status(pingRes.statusCode).json(pingRes);
 };
 
