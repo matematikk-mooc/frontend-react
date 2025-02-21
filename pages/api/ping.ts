@@ -100,6 +100,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse<IPingRes>) => 
         data: { ...pingRes },
         level: pingRes.error ? 'error' : 'info',
     });
+
     return res.status(pingRes.statusCode).json(pingRes);
 };
 
