@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import * as XLSX from 'xlsx';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     try {
@@ -37,38 +38,104 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 
         const finalResponse = await fetch(fullRedirectUrl, { headers: { ...redirectHeaders } });
         if (!finalResponse.ok) throw new Error(`HTTP error! Status: ${finalResponse.status}`);
-        const csvText = await finalResponse.text();
-        if (!csvText) throw new Error('CSV content is empty or undefined');
-        const lines = csvText.split('\n').filter(line => line.trim() !== '');
-        if (lines.length === 0) throw new Error('CSV does not contain any valid lines');
-        const headerLine = lines[0];
-        if (!headerLine) throw new Error('CSV header is undefined');
-        const headers = headerLine.split(',').map(header => header.trim());
-        if (headers.length === 0) throw new Error('CSV headers not found');
+
+        const arrayBuffer = await finalResponse.arrayBuffer();
+        if (!arrayBuffer || arrayBuffer.byteLength === 0)
+            throw new Error('Excel content is empty or undefined');
+
+        const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        if (!sheetName) throw new Error('No sheets found in Excel file');
+
+        const worksheet: any = workbook.Sheets[sheetName];
+        const rawData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { header: 1 });
+
+        if (!rawData || rawData.length === 0)
+            throw new Error('Excel does not contain any valid data');
+        const headers = rawData[0] as string[];
+        if (!headers || headers.length === 0) throw new Error('Excel headers not found');
 
         const tasks: any[] = [];
-        for (let i = 1; i < lines.length; i++) {
-            const row = lines[i]?.split(',').map(value => value.trim());
-            if (!row || row.length < headers.length) {
-                continue;
-            }
-            const taskData: Record<string, string> = {};
+        for (let i = 1; i < rawData.length; i++) {
+            const row = rawData[i] as any[];
+            if (!row || row.length < headers.length) continue;
+
+            const taskData: Record<string, any> = {};
             headers.forEach((header, index) => {
                 taskData[header] = row[index] ?? '';
             });
-            const expirationDateStr = taskData['expiration_date'];
-            if (!expirationDateStr) {
-                continue;
+
+            const expirationDateValue = taskData['expiration_date'];
+            if (!expirationDateValue) continue;
+
+            let expirationDate: Date;
+            if (typeof expirationDateValue === 'object' && expirationDateValue !== null) {
+                if (
+                    'y' in expirationDateValue &&
+                    'm' in expirationDateValue &&
+                    'd' in expirationDateValue
+                ) {
+                    expirationDate = new Date(
+                        expirationDateValue.y,
+                        expirationDateValue.m - 1,
+                        expirationDateValue.d,
+                        expirationDateValue.H || 0,
+                        expirationDateValue.M || 0,
+                        expirationDateValue.S || 0,
+                    );
+                } else {
+                    throw new Error(
+                        `Invalid date object format: ${JSON.stringify(expirationDateValue)}`,
+                    );
+                }
+            } else if (typeof expirationDateValue === 'number') {
+                const dateInfo = XLSX.SSF.parse_date_code(expirationDateValue);
+                expirationDate = new Date(
+                    dateInfo.y,
+                    dateInfo.m - 1,
+                    dateInfo.d,
+                    dateInfo.H || 0,
+                    dateInfo.M || 0,
+                    dateInfo.S || 0,
+                );
+            } else if (typeof expirationDateValue === 'string') {
+                if (expirationDateValue.indexOf('/') > -1) {
+                    const parts: any = expirationDateValue.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0], 10) - 1;
+                        const day = parseInt(parts[1], 10);
+                        const year = parseInt(parts[2], 10);
+                        expirationDate = new Date(year, month, day);
+                    } else {
+                        expirationDate = new Date(expirationDateValue);
+                    }
+                } else {
+                    expirationDate = new Date(expirationDateValue);
+                }
+            } else {
+                throw new Error(
+                    `Unsupported date format: ${typeof expirationDateValue} - ${expirationDateValue}`,
+                );
             }
-            const expirationDate = new Date(expirationDateStr);
-            if (isNaN(expirationDate.getTime())) {
-                continue;
-            }
+
+            if (!expirationDate || isNaN(expirationDate.getTime()))
+                throw new Error(`Invalid expiration date: ${expirationDateValue}`);
+
+            const expirationDateStr = `${expirationDate.getFullYear()}-${String(
+                expirationDate.getMonth() + 1,
+            ).padStart(2, '0')}-${String(expirationDate.getDate()).padStart(2, '0')}`;
+
             const today = new Date();
             const diffMs = expirationDate.getTime() - today.getTime();
             const daysLeft = Math.ceil(diffMs / (1000 * 3600 * 24));
+
+            const titleValue = taskData['title'];
+            if (!titleValue || typeof titleValue !== 'string' || titleValue.trim() === '')
+                throw new Error(`Title not found in row: ${JSON.stringify(row)}`);
+
             tasks.push({
                 ...taskData,
+                title: titleValue,
                 expiration_date: expirationDateStr,
                 days_left: daysLeft,
             });
