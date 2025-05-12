@@ -2,6 +2,55 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import * as XLSX from 'xlsx';
 
+const parseExpirationDate = (value: any) => {
+    if (!value) return null;
+
+    if (
+        typeof value === 'object' &&
+        value !== null &&
+        'y' in value &&
+        'm' in value &&
+        'd' in value
+    ) {
+        return new Date(value.y, value.m - 1, value.d, value.H || 0, value.M || 0, value.S || 0);
+    }
+
+    if (typeof value === 'number') {
+        const dateInfo = XLSX.SSF.parse_date_code(value);
+        return new Date(
+            dateInfo.y,
+            dateInfo.m - 1,
+            dateInfo.d,
+            dateInfo.H || 0,
+            dateInfo.M || 0,
+            dateInfo.S || 0,
+        );
+    }
+
+    if (typeof value === 'string') {
+        if (value.includes('/')) {
+            const parts: any = value.split('/');
+            if (parts.length === 3) {
+                return new Date(
+                    parseInt(parts[2], 10),
+                    parseInt(parts[0], 10) - 1,
+                    parseInt(parts[1], 10),
+                );
+            }
+        }
+        return new Date(value);
+    }
+
+    throw new Error(`Unsupported date format: ${typeof value} - ${value}`);
+};
+
+const extractTaskId = (url: any) => {
+    if (!url || typeof url !== 'string') return null;
+
+    const match = url.match(/DIT-(\d+)/i);
+    return match ? match[0].toUpperCase() : null;
+};
+
 const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     try {
         const { file } = req.query;
@@ -58,68 +107,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
         const tasks: any[] = [];
         for (let i = 1; i < rawData.length; i++) {
             const row = rawData[i] as any[];
-            if (!row || row.length < headers.length) continue;
 
             const taskData: Record<string, any> = {};
-            headers.forEach((header, index) => {
-                taskData[header] = row[index] ?? '';
-            });
+            headers.forEach((header, index) => (taskData[header] = row[index] ?? ''));
 
             const expirationDateValue = taskData['expiration_date'];
-            if (!expirationDateValue) continue;
-
-            let expirationDate: Date;
-            if (typeof expirationDateValue === 'object' && expirationDateValue !== null) {
-                if (
-                    'y' in expirationDateValue &&
-                    'm' in expirationDateValue &&
-                    'd' in expirationDateValue
-                ) {
-                    expirationDate = new Date(
-                        expirationDateValue.y,
-                        expirationDateValue.m - 1,
-                        expirationDateValue.d,
-                        expirationDateValue.H || 0,
-                        expirationDateValue.M || 0,
-                        expirationDateValue.S || 0,
-                    );
-                } else {
-                    throw new Error(
-                        `Invalid date object format: ${JSON.stringify(expirationDateValue)}`,
-                    );
-                }
-            } else if (typeof expirationDateValue === 'number') {
-                const dateInfo = XLSX.SSF.parse_date_code(expirationDateValue);
-                expirationDate = new Date(
-                    dateInfo.y,
-                    dateInfo.m - 1,
-                    dateInfo.d,
-                    dateInfo.H || 0,
-                    dateInfo.M || 0,
-                    dateInfo.S || 0,
-                );
-            } else if (typeof expirationDateValue === 'string') {
-                if (expirationDateValue.indexOf('/') > -1) {
-                    const parts: any = expirationDateValue.split('/');
-                    if (parts.length === 3) {
-                        const month = parseInt(parts[0], 10) - 1;
-                        const day = parseInt(parts[1], 10);
-                        const year = parseInt(parts[2], 10);
-                        expirationDate = new Date(year, month, day);
-                    } else {
-                        expirationDate = new Date(expirationDateValue);
-                    }
-                } else {
-                    expirationDate = new Date(expirationDateValue);
-                }
-            } else {
-                throw new Error(
-                    `Unsupported date format: ${typeof expirationDateValue} - ${expirationDateValue}`,
-                );
-            }
-
-            if (!expirationDate || isNaN(expirationDate.getTime()))
-                throw new Error(`Invalid expiration date: ${expirationDateValue}`);
+            const expirationDate = parseExpirationDate(expirationDateValue);
+            if (expirationDate === null) continue;
 
             const expirationDateStr = `${expirationDate.getFullYear()}-${String(
                 expirationDate.getMonth() + 1,
@@ -129,9 +123,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
             const diffMs = expirationDate.getTime() - today.getTime();
             const daysLeft = Math.ceil(diffMs / (1000 * 3600 * 24));
 
-            const titleValue = taskData['title'];
+            let titleValue = taskData['title'];
             if (!titleValue || typeof titleValue !== 'string' || titleValue.trim() === '')
                 throw new Error(`Title not found in row: ${JSON.stringify(row)}`);
+
+            const urlValue = taskData['url'] ?? '';
+            const taskId = extractTaskId(urlValue);
+            if (taskId !== null) {
+                titleValue = `[${taskId}] ${titleValue}`;
+            }
 
             tasks.push({
                 ...taskData,
