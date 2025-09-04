@@ -177,7 +177,7 @@ export const transformToTasks = (data: unknown[][]): Task[] => {
                 ...task,
                 title: taskId ? `[${taskId}] ${title}` : title,
                 expiration_date: expirationDate.toISOString().split('T')[0],
-                days_left: Math.ceil((expirationDate.getTime() - today.getTime()) / 86400000),
+                days_left: Math.max(0, Math.ceil((expirationDate.getTime() - today.getTime()) / 86400000)),
             } as Task;
         })
         .filter((task): task is Task => task !== null);
