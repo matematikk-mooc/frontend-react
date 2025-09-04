@@ -23,7 +23,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Task[] | { erro
         if (type === 'alert') {
             tasks = tasks.map(task => ({
                 ...task,
-                days_left: task.days_left === 0 ? 0 : Math.ceil(task.days_left / 7) * 7
+                days_left: task.days_left === 0 ? 0 : Math.ceil(task.days_left / 7) * 7,
             }));
         }
 
