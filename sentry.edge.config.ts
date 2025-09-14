@@ -14,4 +14,16 @@ Sentry.init({
     release: publicRuntimeConfig.APP_VERSION,
     dsn: publicRuntimeConfig.APP_ENV !== 'local' ? publicRuntimeConfig.SENTRY_DSN : undefined,
     tracesSampleRate: 1,
+    beforeSendTransaction: eventItem => {
+        const traceStatus = eventItem?.contexts?.trace?.status;
+        const transactionName = eventItem?.transaction;
+
+        const isTraceSuccess = traceStatus === 'ok';
+        const isPingRequest = transactionName?.includes('/api/ping');
+        const isSwaggerRequest = transactionName?.includes('/api/openapi');
+
+        if (isTraceSuccess) if (isPingRequest || isSwaggerRequest) return null;
+
+        return eventItem;
+    },
 });

@@ -14,6 +14,22 @@ export type IEnrollmentState = {
     };
 };
 
+export const KPASPingSchema = z
+    .strictObject({
+        database: z.boolean().openapi({ example: true }),
+        integrations: z.strictObject({
+            canvas: z.boolean().openapi({ example: true }),
+            vimeo: z.boolean().openapi({ example: true }),
+        }),
+    })
+    .openapi('KPASPing');
+export type IKPASPing = z.infer<typeof KPASPingSchema>;
+
+export const getPing = async () => {
+    const apiPath = `/ping`;
+    return apiFetch<IKPASResponse<IKPASPing>>(publicRuntimeConfig.KPAS_API_URL, apiPath);
+};
+
 export const getCourses = async () => {
     const apiPath = `/export/courses`;
     return apiFetch<IKPASResponse<number[]>>(publicRuntimeConfig.KPAS_API_URL, apiPath);

@@ -1,0 +1,84 @@
+name: Release - GitHub
+
+on:
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: 'Image tag name'
+                required: true
+    release:
+        types: [published]
+
+jobs:
+    build-docker:
+        uses: ./.github/workflows/_build-docker.yml
+        permissions:
+            contents: read
+            packages: write
+        with:
+            registry_host: ${{ vars.PROD_REGISTRY_HOST }}
+            registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
+            image_name: ${{ vars.PROD_IMAGE_NAME }}
+            image_tag: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+
+        secrets:
+            registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
+
+    test-lint:
+        uses: ./.github/workflows/_test-lint.yml
+        with:
+            node_version: '20'
+
+    test-e2e-headless-chromium:
+        needs: [build-docker]
+        uses: ./.github/workflows/_test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/api/ping/'
+            docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
+            docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
+            docker_image: ${{ vars.PROD_IMAGE_NAME }}
+            app_env: production
+            test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
+            test_suite: 'headless'
+            test_browser: 'chromium'
+        secrets:
+            docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
+            test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
+
+    test-e2e-headless-firefox:
+        needs: [build-docker]
+        uses: ./.github/workflows/_test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/api/ping/'
+            docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
+            docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
+            docker_image: ${{ vars.PROD_IMAGE_NAME }}
+            app_env: production
+            test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
+            test_suite: 'headless'
+            test_browser: 'firefox'
+        secrets:
+            docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
+            test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
+
+    test-e2e-headless-webkit:
+        needs: [build-docker]
+        uses: ./.github/workflows/_test-e2e.yml
+        with:
+            port: ${{ vars.PORT }}
+            node_version: '20'
+            ping_path: '/api/ping/'
+            docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
+            docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
+            docker_image: ${{ vars.PROD_IMAGE_NAME }}
+            app_env: production
+            test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
+            test_suite: 'headless'
+            test_browser: 'webkit'
+        secrets:
+            docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
+            test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}

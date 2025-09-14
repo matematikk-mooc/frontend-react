@@ -1,9 +1,10 @@
+import * as Sentry from '@sentry/nextjs';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { apiResponse, IResponse, responseSchema } from '@/integrations/apiFetch';
 import { getOpenAPI, IPing, PingSchema } from '@/integrations/bff/v1/other';
 import { resHandler } from '@/integrations/kpas/kpasFetch';
-import { getCourses } from '@/integrations/kpas/v1/export';
+import { getPing, IKPASPing } from '@/integrations/kpas/v1/export';
 import packageConfig from '@/package.json';
 import { captureException, handleSchemaValidation } from '@/shared/utils/sentry';
 import z from '@/shared/utils/validate';
@@ -65,8 +66,8 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse<IPingRes>) => 
     }
 
     try {
-        const courses = await getCourses();
-        const kpasRes = resHandler<number[]>(courses);
+        const kpasPing = await getPing();
+        const kpasRes = resHandler<IKPASPing>(kpasPing);
         if (!kpasRes.error) pingRes.payload.integrations.kpas = true;
     } catch (error) {
         pingRes.error = true;
@@ -92,6 +93,13 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse<IPingRes>) => 
 
         captureException('EeHZfJ', new Error('Failed to validate ping response schema.'));
     }
+
+    Sentry.addBreadcrumb({
+        category: 'ping.response',
+        message: `Ping response: ${pingRes.statusCode}`,
+        data: { ...pingRes },
+        level: pingRes.error ? 'error' : 'info',
+    });
 
     return res.status(pingRes.statusCode).json(pingRes);
 };
