@@ -23,7 +23,8 @@ on:
                 required: true
 
 jobs:
-    tag-image:
+    deploy-docker:
+        name: Deploy - Docker
         runs-on: ubuntu-latest
         permissions:
             contents: read
