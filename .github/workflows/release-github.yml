@@ -27,14 +27,14 @@ jobs:
     test-lint:
         uses: ./.github/workflows/_test-lint.yml
         with:
-            node_version: '20'
+            node_version: '22'
 
     test-e2e-headless-chromium:
-        needs: [build-docker]
+        needs: [build-docker, test-lint]
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
-            node_version: '20'
+            node_version: '22'
             ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
@@ -48,11 +48,11 @@ jobs:
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
     test-e2e-headless-firefox:
-        needs: [build-docker]
+        needs: [build-docker, test-lint]
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
-            node_version: '20'
+            node_version: '22'
             ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
@@ -66,11 +66,11 @@ jobs:
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
     test-e2e-headless-webkit:
-        needs: [build-docker]
+        needs: [build-docker, test-lint]
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
-            node_version: '20'
+            node_version: '22'
             ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}

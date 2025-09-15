@@ -8,7 +8,7 @@
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "noEmit": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "isolatedModules": true,

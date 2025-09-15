@@ -16,6 +16,7 @@ const withPWA: any = nextPwa({
     disable: process.env.NODE_ENV !== 'production',
     register: true,
     skipWaiting: true,
+    buildExcludes: [/dynamic-css-manifest\.json$/],
 });
 
 const filename = fileURLToPath(import.meta.url);
@@ -30,6 +31,7 @@ if (appEnv !== 'local' && sentryDSN === '') {
 }
 
 const nextConfig: NextConfig = {
+    output: 'standalone',
     i18n: i18nConfig.i18n,
     productionBrowserSourceMaps: false,
     reactStrictMode: true,
@@ -52,6 +54,9 @@ const nextConfig: NextConfig = {
         includePaths: [path.join(dirname, 'styles')],
         silenceDeprecations: ['import', 'legacy-js-api'],
     },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
     async rewrites() {
         return [...generateRewrites()];
     },
@@ -67,7 +72,7 @@ export default withBundleAnalyzer(
         project: 'kpas-frontend-react',
         tunnelRoute: '/logs/',
 
-        silent: false,
+        silent: true,
         telemetry: false,
         widenClientFileUpload: false,
         hideSourceMaps: true,
