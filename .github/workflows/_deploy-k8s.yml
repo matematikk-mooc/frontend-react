@@ -51,3 +51,12 @@ jobs:
                   docker buildx imagetools create \
                     --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:latest \
                     ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }}
+
+    deploy-k8s:
+        name: Deploy - Kubernetes
+        needs: [deploy-docker]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Echo
+              run: |
+                  echo "Hello, Kubernetes Deployment!"
