@@ -20,12 +20,7 @@ on:
 jobs:
     build-docker:
         runs-on: ubuntu-latest
-        timeout-minutes: 30
-        strategy:
-            matrix:
-                platform:
-                    - linux/amd64
-                    - linux/arm64
+        timeout-minutes: 60
         permissions:
             contents: read
             packages: write
@@ -50,11 +45,16 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   context: .
-                  platforms: ${{ matrix.platform }}
+                  platforms: linux/amd64
                   push: true
-                  tags: ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-                  cache-from: type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-                  cache-to: type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }},mode=max
+                  tags: |
+                      ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
+                      ${{ inputs.registry_host }}/${{ inputs.image_name }}:latest
+                  cache-from: |
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest
+                  cache-to: |
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache,mode=max
                   build-args: |
                       BUILDKIT_INLINE_CACHE=1
                       VERSION=${{ inputs.image_tag }}
