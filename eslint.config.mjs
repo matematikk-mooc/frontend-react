@@ -25,7 +25,7 @@ const config = [
     ),
 
     {
-        ignores: ['public/sw.js', 'public/workbox-*.js', '.next/**'],
+        ignores: ['public/sw.js', 'public/workbox-*.js', '.next/**', 'next-env.d.ts'],
     },
 
     {
