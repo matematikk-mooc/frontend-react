@@ -1,4 +1,4 @@
-name: Release - GitHub
+name: Release - Production
 
 on:
     workflow_dispatch:
@@ -10,7 +10,8 @@ on:
         types: [published]
 
 jobs:
-    build:
+    build-app:
+        name: App
         uses: ./.github/workflows/_build-docker.yml
         permissions:
             contents: read
@@ -22,13 +23,16 @@ jobs:
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
 
-    lint:
+    lint-code:
+        name: Code
         uses: ./.github/workflows/_test-lint.yml
         with:
             node_version: '22'
 
-    chromium:
-        needs: [build, lint]
+    test-chromium:
+        name: Chromium
+        needs: [build-app, lint-code]
+        if: ${{ success() }}
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
@@ -37,7 +41,7 @@ jobs:
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             docker_image: ${{ vars.PROD_IMAGE_NAME }}
-            docker_image_digest: ${{ needs.build-docker.outputs.image_digest }}
+            docker_image_digest: ${{ needs.build-app.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
             test_suite: 'headless'
@@ -46,8 +50,10 @@ jobs:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
-    firefox:
-        needs: [build, lint]
+    test-firefox:
+        name: Firefox
+        needs: [build-app, lint-code]
+        if: ${{ success() }}
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
@@ -56,7 +62,7 @@ jobs:
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             docker_image: ${{ vars.PROD_IMAGE_NAME }}
-            docker_image_digest: ${{ needs.build-docker.outputs.image_digest }}
+            docker_image_digest: ${{ needs.build-app.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
             test_suite: 'headless'
@@ -65,8 +71,10 @@ jobs:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
-    webkit:
-        needs: [build, lint]
+    test-webkit:
+        name: WebKit
+        needs: [build-app, lint-code]
+        if: ${{ success() }}
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
@@ -75,7 +83,7 @@ jobs:
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             docker_image: ${{ vars.PROD_IMAGE_NAME }}
-            docker_image_digest: ${{ needs.build-docker.outputs.image_digest }}
+            docker_image_digest: ${{ needs.build-app.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
             test_suite: 'headless'
@@ -85,7 +93,9 @@ jobs:
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
     deploy:
-        needs: [chromium, firefox, webkit]
+        name: App
+        needs: [test-chromium, test-firefox, test-webkit]
+        if: ${{ success() }}
         uses: ./.github/workflows/_deploy-k8s.yml
         permissions:
             contents: read
@@ -94,7 +104,7 @@ jobs:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             image_name: ${{ vars.PROD_IMAGE_NAME }}
-            image_digest: ${{ needs.build-docker.outputs.image_digest }}
+            image_digest: ${{ needs.build-app.outputs.image_digest }}
             image_tag: ${{ github.event.release.tag_name || github.event.inputs.tag }}
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
