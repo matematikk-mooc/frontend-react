@@ -17,7 +17,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Task[] | { erro
         const auth = await authenticateSharePoint(file);
         const buffer = await downloadExcel(auth.url, auth.cookie);
 
-        const data = parseExcel(buffer);
+        const data = await parseExcel(buffer);
         let tasks = transformToTasks(data);
 
         if (type === 'alert') {

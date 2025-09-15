@@ -1,13 +1,4 @@
-import * as XLSX from 'xlsx';
-
-interface DateObject {
-    y: number;
-    m: number;
-    d: number;
-    H?: number;
-    M?: number;
-    S?: number;
-}
+import ExcelJS from 'exceljs';
 
 export interface Task {
     title: string;
@@ -29,22 +20,12 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const parseDate = (value: unknown): Date | null => {
     if (!value) return null;
-
-    const dateObj = value as DateObject;
-    if (dateObj.y && dateObj.m && dateObj.d) {
-        return new Date(
-            dateObj.y,
-            dateObj.m - 1,
-            dateObj.d,
-            dateObj.H || 0,
-            dateObj.M || 0,
-            dateObj.S || 0,
-        );
-    }
+    if (value instanceof Date) return value;
 
     if (typeof value === 'number') {
-        const d = XLSX.SSF.parse_date_code(value);
-        return new Date(d.y, d.m - 1, d.d, d.H || 0, d.M || 0, d.S || 0);
+        const excelEpoch = new Date(1899, 11, 30);
+        const msPerDay = 24 * 60 * 60 * 1000;
+        return new Date(excelEpoch.getTime() + value * msPerDay);
     }
 
     if (typeof value === 'string') {
@@ -140,18 +121,20 @@ export const downloadExcel = async (url: string, cookie: string): Promise<ArrayB
     return response.arrayBuffer();
 };
 
-export const parseExcel = (buffer: ArrayBuffer): unknown[][] => {
-    const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
-    const sheetName = workbook.SheetNames[0];
+export const parseExcel = async (buffer: ArrayBuffer): Promise<unknown[][]> => {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
 
-    if (!sheetName) throw new Error('No sheets found');
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) throw new Error('No sheets found');
 
-    const sheet = workbook.Sheets[sheetName];
-    if (!sheet) throw new Error('Sheet not found');
+    const data: unknown[][] = [];
+    worksheet.eachRow({ includeEmpty: false }, (row) => {
+        const rowData = row.values as unknown[];
+        data.push(rowData.slice(1));
+    });
 
-    const data = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
-    if (!data || data.length < 2) throw new Error('No data found');
-
+    if (data.length < 2) throw new Error('No data found');
     return data;
 };
 
