@@ -52,7 +52,7 @@ jobs:
         name: App
         needs: [build-app, lint-code, test-chromium]
         if: ${{ success() }}
-        uses: ./.github/workflows/_deploy-k8s.yml
+        uses: ./.github/workflows/_deploy-docker.yml
         with:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
