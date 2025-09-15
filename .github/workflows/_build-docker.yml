@@ -22,9 +22,6 @@ jobs:
     build-docker:
         name: Build - Docker
         runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
         outputs:
             digest: ${{ steps.build.outputs.digest }}
         steps:
@@ -52,6 +49,8 @@ jobs:
                   cache-from: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest-stage
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest-feature
                   cache-to: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache,mode=max
                   build-args: |

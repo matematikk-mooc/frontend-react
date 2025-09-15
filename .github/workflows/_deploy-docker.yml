@@ -15,9 +15,15 @@ on:
                 type: string
                 description: 'Docker image digest to tag'
             image_tag:
-                required: true
+                required: false
                 type: string
-                description: 'Tag to apply to the image'
+                description: 'Tag to apply to the image (optional - if not set, only latest_tag is applied)'
+                default: ''
+            latest_tag:
+                required: false
+                type: string
+                description: 'Latest tag to apply (default: latest)'
+                default: 'latest'
         secrets:
             registry_password:
                 required: true
@@ -26,9 +32,6 @@ jobs:
     deploy-docker:
         name: Deploy - Docker
         runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
         steps:
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
@@ -41,6 +44,7 @@ jobs:
                   password: ${{ secrets.registry_password }}
 
             - name: Create and push version tag
+              if: ${{ inputs.image_tag != '' }}
               run: |
                   docker buildx imagetools create \
                     --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag }} \
@@ -49,14 +53,5 @@ jobs:
             - name: Create and push latest tag
               run: |
                   docker buildx imagetools create \
-                    --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:latest \
+                    --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.latest_tag }} \
                     ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }}
-
-    deploy-k8s:
-        name: Deploy - Kubernetes
-        needs: [deploy-docker]
-        runs-on: ubuntu-latest
-        steps:
-            - name: Echo
-              run: |
-                  echo "Hello, Kubernetes Deployment!"
