@@ -1,8 +1,8 @@
-[![Branch - Production V1](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/branch-production-v1.yml/badge.svg?branch=main)](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/branch-production-v1.yml)
-[![Schedule - Production](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/schedule-production.yml/badge.svg?branch=main)](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/schedule-production.yml)
+[![Branch - Production V1](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/branch-production-v1.yml/badge.svg?branch=main)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/branch-production-v1.yml)
+[![Schedule - Production](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/schedule-production.yml/badge.svg?branch=main)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/schedule-production.yml)
 
-[![Branch - Stage V1](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/branch-stage-v1.yml/badge.svg?branch=stage)](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/branch-stage-v1.yml)
-[![Schedule - Stage](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/schedule-stage.yml/badge.svg?branch=main)](https://github.com/Utdanningsdirektoratet/kpas-frontend-react/actions/workflows/schedule-stage.yml)
+[![Branch - Stage V1](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/branch-stage-v1.yml/badge.svg?branch=stage)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/branch-stage-v1.yml)
+[![Schedule - Stage](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/schedule-stage.yml/badge.svg?branch=main)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/schedule-stage.yml)
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
