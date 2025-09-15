@@ -1,4 +1,5 @@
-[![Release - Production](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/release-production.yml/badge.svg)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/production-github.yml)
+[![Release - Production](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/release-production.yml/badge.svg)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/release-production.yml)
+[![Release - Stage](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/release-stage.yml/badge.svg)](https://github.com/Utdanningsdirektoratet/kursp-frontend-react/actions/workflows/release-stage.yml)
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

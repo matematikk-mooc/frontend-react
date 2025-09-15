@@ -55,6 +55,8 @@ jobs:
         if: ${{ success() }}
         uses: ./.github/workflows/_deploy-docker.yml
         with:
+            environment_name: 'stage'
+            environment_url: 'https://kp.stage.udir.no'
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             image_name: ${{ vars.STAGE_IMAGE_NAME }}
