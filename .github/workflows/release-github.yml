@@ -19,8 +19,6 @@ jobs:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             image_name: ${{ vars.PROD_IMAGE_NAME }}
-            image_tag: ${{ github.event.release.tag_name || github.event.inputs.tag }}
-
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
 
@@ -39,6 +37,7 @@ jobs:
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             docker_image: ${{ vars.PROD_IMAGE_NAME }}
+            docker_image_digest: ${{ needs.build-docker.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
             test_suite: 'headless'
@@ -57,6 +56,7 @@ jobs:
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             docker_image: ${{ vars.PROD_IMAGE_NAME }}
+            docker_image_digest: ${{ needs.build-docker.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
             test_suite: 'headless'
@@ -75,6 +75,7 @@ jobs:
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             docker_image: ${{ vars.PROD_IMAGE_NAME }}
+            docker_image_digest: ${{ needs.build-docker.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
             test_suite: 'headless'
@@ -82,3 +83,18 @@ jobs:
         secrets:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
+
+    deploy-k8s:
+        needs: [test-e2e-headless-chromium, test-e2e-headless-firefox, test-e2e-headless-webkit]
+        uses: ./.github/workflows/_deploy-k8s.yml
+        permissions:
+            contents: read
+            packages: write
+        with:
+            registry_host: ${{ vars.PROD_REGISTRY_HOST }}
+            registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
+            image_name: ${{ vars.PROD_IMAGE_NAME }}
+            image_digest: ${{ needs.build-docker.outputs.image_digest }}
+            image_tag: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+        secrets:
+            registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}

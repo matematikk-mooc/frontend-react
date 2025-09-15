@@ -25,6 +25,10 @@ on:
                 type: string
                 description: 'Docker image name'
                 required: true
+            docker_image_digest:
+                type: string
+                description: 'Docker image digest'
+                required: true
             app_env:
                 type: string
                 description: 'Application environment'
@@ -74,9 +78,9 @@ jobs:
                   username: ${{ inputs.docker_username }}
                   password: ${{ secrets.docker_password }}
 
-            - name: Pull Docker image
+            - name: Pull Docker image by digest
               if: ${{ inputs.test_suite == 'headless' }}
-              run: docker pull ${{ inputs.docker_registry }}/${{ inputs.docker_image }}:CI-${{ github.sha }}
+              run: docker pull ${{ inputs.docker_registry }}/${{ inputs.docker_image }}@${{ inputs.docker_image_digest }}
 
             - name: Start application container
               if: ${{ inputs.test_suite == 'headless' }}
@@ -88,7 +92,7 @@ jobs:
                       -e BFF_API_URL=http://localhost:${{ inputs.port }}/api \
                       -e KPAS_API_URL=${{ inputs.app_env == 'production' && 'https://kpas.kompetanse.udir.no/api' || 'https://kpas.staging.kompetanse.udir.no/api' }} \
                       -p ${{ inputs.port }}:${{ inputs.port }} \
-                      ${{ inputs.docker_registry }}/${{ inputs.docker_image }}:CI-${{ github.sha }}
+                      ${{ inputs.docker_registry }}/${{ inputs.docker_image }}@${{ inputs.docker_image_digest }}
 
             - name: Wait for application readiness
               run: |

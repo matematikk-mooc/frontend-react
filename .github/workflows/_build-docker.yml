@@ -10,12 +10,13 @@ on:
             image_name:
                 required: true
                 type: string
-            image_tag:
-                required: true
-                type: string
         secrets:
             registry_password:
                 required: true
+        outputs:
+            image_digest:
+                description: 'Docker image digest'
+                value: ${{ jobs.build-docker.outputs.digest }}
 
 jobs:
     build-docker:
@@ -23,6 +24,8 @@ jobs:
         permissions:
             contents: read
             packages: write
+        outputs:
+            digest: ${{ steps.build.outputs.digest }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -38,14 +41,13 @@ jobs:
                   password: ${{ secrets.registry_password }}
 
             - name: Build and push
+              id: build
               uses: docker/build-push-action@v5
               with:
                   context: .
                   platforms: linux/amd64
                   push: true
-                  tags: |
-                      ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
-                      ${{ inputs.registry_host }}/${{ inputs.image_name }}:latest
+                  outputs: type=image,name=${{ inputs.registry_host }}/${{ inputs.image_name }},push-by-digest=true
                   cache-from: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest
@@ -53,6 +55,6 @@ jobs:
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache,mode=max
                   build-args: |
                       BUILDKIT_INLINE_CACHE=1
-                      VERSION=${{ inputs.image_tag }}
+                      VERSION=${{ github.sha }}
                   provenance: false
                   sbom: false
