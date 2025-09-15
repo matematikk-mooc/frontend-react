@@ -69,7 +69,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 export default withBundleAnalyzer(
     withSentryConfig<NextConfig>(withPWA(nextConfig), {
         org: 'udir',
-        project: 'kpas-frontend-react',
+        project: 'kursp-frontend-react',
         tunnelRoute: '/logs/',
 
         silent: true,
