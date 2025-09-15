@@ -53,6 +53,9 @@ jobs:
         name: App
         needs: [build-app, lint-code, test-chromium]
         if: ${{ success() }}
+        environment:
+            name: stage
+            url: https://kp.stage.udir.no
         uses: ./.github/workflows/_deploy-docker.yml
         with:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
