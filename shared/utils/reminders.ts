@@ -129,7 +129,7 @@ export const parseExcel = async (buffer: ArrayBuffer): Promise<unknown[][]> => {
     if (!worksheet) throw new Error('No sheets found');
 
     const data: unknown[][] = [];
-    worksheet.eachRow({ includeEmpty: false }, (row) => {
+    worksheet.eachRow({ includeEmpty: false }, row => {
         const rowData = row.values as unknown[];
         data.push(rowData.slice(1));
     });
