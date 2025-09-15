@@ -86,7 +86,6 @@ jobs:
               if: ${{ inputs.test_suite == 'headless' }}
               run: |
                   docker run --rm -d \
-                      --name ${{ inputs.docker_image }} \
                       -e PORT=${{ inputs.port }} \
                       -e APP_ENV=${{ inputs.app_env }} \
                       -e BFF_API_URL=http://localhost:${{ inputs.port }}/api \

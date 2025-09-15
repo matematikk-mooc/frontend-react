@@ -10,7 +10,7 @@ on:
         types: [published]
 
 jobs:
-    build-docker:
+    build:
         uses: ./.github/workflows/_build-docker.yml
         permissions:
             contents: read
@@ -22,13 +22,13 @@ jobs:
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
 
-    test-lint:
+    lint:
         uses: ./.github/workflows/_test-lint.yml
         with:
             node_version: '22'
 
-    test-e2e-headless-chromium:
-        needs: [build-docker, test-lint]
+    chromium:
+        needs: [build, lint]
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
@@ -46,8 +46,8 @@ jobs:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
-    test-e2e-headless-firefox:
-        needs: [build-docker, test-lint]
+    firefox:
+        needs: [build, lint]
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
@@ -65,8 +65,8 @@ jobs:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
-    test-e2e-headless-webkit:
-        needs: [build-docker, test-lint]
+    webkit:
+        needs: [build, lint]
         uses: ./.github/workflows/_test-e2e.yml
         with:
             port: ${{ vars.PORT }}
@@ -84,8 +84,8 @@ jobs:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
 
-    deploy-k8s:
-        needs: [test-e2e-headless-chromium, test-e2e-headless-firefox, test-e2e-headless-webkit]
+    deploy:
+        needs: [chromium, firefox, webkit]
         uses: ./.github/workflows/_deploy-k8s.yml
         permissions:
             contents: read
