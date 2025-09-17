@@ -45,7 +45,6 @@ on:
                 type: string
                 description: 'Test browser to use'
                 required: true
-
         secrets:
             docker_password:
                 description: 'Docker registry password'
@@ -57,7 +56,7 @@ on:
 jobs:
     test-e2e:
         name: Test - E2E
-        runs-on: ubuntu-latest
+        runs-on: ['runners-ditiac-prod']
         steps:
             - name: Checkout code
               uses: actions/checkout@v4

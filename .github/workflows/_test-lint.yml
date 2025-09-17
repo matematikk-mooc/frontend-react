@@ -10,7 +10,7 @@ on:
 jobs:
     test-lint:
         name: Test - Lint
-        runs-on: ubuntu-latest
+        runs-on: ['runners-ditiac-prod']
         continue-on-error: true
         steps:
             - name: Checkout code

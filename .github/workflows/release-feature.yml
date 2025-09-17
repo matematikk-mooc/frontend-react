@@ -14,6 +14,7 @@ jobs:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
             image_name: ${{ vars.STAGE_IMAGE_NAME }}
+            latest_tag: 'latest-stage'
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
 
