@@ -67,7 +67,7 @@ jobs:
                   node-version: ${{ inputs.node_version }}
 
             - name: Ensure cache directories exist
-              run: mkdir -p /home/runner/.pnpm-store /home/runner/.cache/ms-playwright/.links
+              run: mkdir -p ${{ github.workspace }}/.pnpm-store ${{ github.workspace }}/.cache/ms-playwright/.links
 
             - name: Login to Docker registry
               if: ${{ inputs.test_suite == 'headless' }}
@@ -109,13 +109,19 @@ jobs:
             - name: Setup Cache for pnpm
               uses: actions/cache@v4
               with:
-                  path: /home/runner/.pnpm-store
-                  key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+                  path: |
+                      ${{ github.workspace }}/.pnpm-store
+                      ${{ github.workspace }}/node_modules
+                  key: ${{ runner.os }}-pnpm-e2e-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pnpm-e2e-
+                      ${{ runner.os }}-pnpm-
 
             - name: Install PNPM and Dependencies
               run: |
                   npm install -g pnpm
-                  pnpm install --frozen-lockfile --store-dir=/home/runner/.pnpm-store
+                  pnpm config set store-dir ${{ github.workspace }}/.pnpm-store
+                  pnpm install --frozen-lockfile
 
             - name: Get installed Playwright version
               run: |
@@ -126,15 +132,22 @@ jobs:
               uses: actions/cache@v4
               id: playwright-cache
               with:
-                  path: /home/runner/.cache/ms-playwright
+                  path: ${{ github.workspace }}/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}-${{ inputs.test_browser }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}-
+                      ${{ runner.os }}-playwright-
 
             - name: Install Playwright browsers and dependencies
               if: steps.playwright-cache.outputs.cache-hit != 'true' || ${{ inputs.test_suite == 'headless' && inputs.test_browser == 'webkit' }}
-              run: pnpm exec playwright install --with-deps ${{ inputs.test_browser }}
+              run: |
+                  export PLAYWRIGHT_BROWSERS_PATH=${{ github.workspace }}/.cache/ms-playwright
+                  pnpm exec playwright install --with-deps ${{ inputs.test_browser }}
 
             - name: Run tests
-              run: pnpm run test:${{ inputs.test_suite }}:${{ inputs.test_browser }}
+              run: |
+                  export PLAYWRIGHT_BROWSERS_PATH=${{ github.workspace }}/.cache/ms-playwright
+                  pnpm run test:${{ inputs.test_suite }}:${{ inputs.test_browser }}
               env:
                   PORT: ${{ inputs.port }}
                   APP_ENV: ${{ inputs.app_env }}
