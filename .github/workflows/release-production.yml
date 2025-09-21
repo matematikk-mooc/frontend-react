@@ -28,10 +28,17 @@ jobs:
         with:
             environment_name: 'production'
             environment_url: 'https://kp.udir.no'
+
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
+
             image_name: ${{ vars.PROD_IMAGE_NAME }}
             image_digest: ${{ needs.build-app.outputs.image_digest }}
             image_tag: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+
+            k8s_namespace: 'apps-kursp-namespace'
+            k8s_deployment_name: 'apps-kursp-frontend-deployment'
+            k8s_rollout_timeout: 60
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
+            k8s_kube_config: ${{ secrets.PROD_K8S_KUBE_CONFIG }}

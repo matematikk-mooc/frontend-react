@@ -25,15 +25,30 @@ on:
             image_tag:
                 required: false
                 type: string
-                description: 'Tag to apply to the image (optional - if not set, only latest_tag is applied)'
+                description: 'Tag to apply to the image (optional - if not set, only image_tag_latest is applied)'
                 default: ''
-            latest_tag:
+            image_tag_latest:
                 required: false
                 type: string
                 description: 'Latest tag to apply (default: latest)'
                 default: 'latest'
+            k8s_namespace:
+                required: true
+                type: string
+                description: 'Kubernetes namespace'
+            k8s_deployment_name:
+                required: true
+                type: string
+                description: 'Kubernetes deployment name'
+            k8s_rollout_timeout:
+                required: false
+                type: number
+                description: 'Rollout timeout in seconds'
+                default: 300
         secrets:
             registry_password:
+                required: true
+            k8s_kube_config:
                 required: true
 
 jobs:
@@ -54,15 +69,69 @@ jobs:
                   username: ${{ inputs.registry_username }}
                   password: ${{ secrets.registry_password }}
 
-            - name: Create and push version tag
-              if: ${{ inputs.image_tag != '' }}
+            - name: Tag images in parallel
               run: |
-                  docker buildx imagetools create \
-                    --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag }} \
-                    ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }}
+                  SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
 
-            - name: Create and push latest tag
+                  # Run tagging operations in parallel
+                  {
+                    docker buildx imagetools create \
+                      --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${SHORT_SHA} \
+                      ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }} &
+
+                    docker buildx imagetools create \
+                      --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag_latest }} \
+                      ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }} &
+
+                    if [[ -n "${{ inputs.image_tag }}" ]]; then
+                      docker buildx imagetools create \
+                        --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag }} \
+                        ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }} &
+                    fi
+
+                    # Wait for all background jobs to complete
+                    wait
+                  }
+
+                  echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+
+            - name: Setup kubectl
+              uses: azure/setup-kubectl@v3
+              with:
+                version: 'latest'
+
+            - name: Configure kubectl
               run: |
-                  docker buildx imagetools create \
-                    --tag ${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.latest_tag }} \
-                    ${{ inputs.registry_host }}/${{ inputs.image_name }}@${{ inputs.image_digest }}
+                echo "${{ secrets.k8s_kube_config }}" | base64 -d > /tmp/kubeconfig
+                echo "KUBECONFIG=/tmp/kubeconfig" >> $GITHUB_ENV
+
+            - name: Deploy
+              run: |
+                IMAGE=${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag != '' && inputs.image_tag || env.SHORT_SHA }}
+
+                echo "Updating deployment to: ${IMAGE}"
+                kubectl set image deployment/${{ inputs.k8s_deployment_name }} \
+                  ${{ inputs.k8s_deployment_name }}=${IMAGE} \
+                  -n ${{ inputs.k8s_namespace }}
+
+                echo "Waiting for rollout to complete..."
+                if kubectl rollout status deployment/${{ inputs.k8s_deployment_name }} \
+                  -n ${{ inputs.k8s_namespace }} --timeout=${{ inputs.k8s_rollout_timeout }}s; then
+                  echo "SUCCESS: ${{ inputs.k8s_deployment_name }} was updated to ${IMAGE}"
+                else
+                  echo "Initiating rollback..."
+                  kubectl rollout undo deployment/${{ inputs.k8s_deployment_name }} -n ${{ inputs.k8s_namespace }}
+
+                  echo "Waiting for rollback to complete..."
+                  if kubectl rollout status deployment/${{ inputs.k8s_deployment_name }} -n ${{ inputs.k8s_namespace }} --timeout=${{ inputs.k8s_rollout_timeout }}s; then
+                    echo "ERROR: ${{ inputs.k8s_deployment_name }} failed to update to ${IMAGE}, rolled back to previous version"
+                    exit 1
+                  else
+                    echo "CRITICAL ERROR: Both deployment and rollback failed for ${{ inputs.k8s_deployment_name }}. Manual intervention required!"
+                    exit 2
+                  fi
+                fi
+
+            - name: Cleanup kubeconfig
+              if: always()
+              run: rm -f /tmp/kubeconfig

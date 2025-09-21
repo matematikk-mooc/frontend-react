@@ -10,7 +10,7 @@ on:
             image_name:
                 required: true
                 type: string
-            latest_tag:
+            image_tag_latest:
                 required: false
                 type: string
                 default: 'latest'
@@ -52,7 +52,7 @@ jobs:
                   outputs: type=image,name=${{ inputs.registry_host }}/${{ inputs.image_name }},push-by-digest=true
                   cache-from: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache
-                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.latest_tag }}
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag_latest }}
                   cache-to: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache,mode=max
                   build-args: |

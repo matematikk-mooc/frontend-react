@@ -13,8 +13,8 @@ jobs:
         with:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
-            image_name: ${{ vars.STAGE_IMAGE_NAME }}
-            latest_tag: 'latest-stage'
+            image_name: ${{ vars.PROD_IMAGE_NAME }}
+            image_tag_latest: 'latest-feature'
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
 
@@ -36,7 +36,7 @@ jobs:
             ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
-            docker_image: ${{ vars.STAGE_IMAGE_NAME }}
+            docker_image: ${{ vars.PROD_IMAGE_NAME }}
             docker_image_digest: ${{ needs.build-app.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
