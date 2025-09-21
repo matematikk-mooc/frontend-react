@@ -10,6 +10,10 @@ on:
             image_name:
                 required: true
                 type: string
+            image_tag_latest:
+                required: false
+                type: string
+                default: 'latest'
         secrets:
             registry_password:
                 required: true
@@ -21,7 +25,7 @@ on:
 jobs:
     build-docker:
         name: Build - Docker
-        runs-on: ubuntu-latest
+        runs-on: ['runners-ditiac-prod']
         outputs:
             digest: ${{ steps.build.outputs.digest }}
         steps:
@@ -48,9 +52,7 @@ jobs:
                   outputs: type=image,name=${{ inputs.registry_host }}/${{ inputs.image_name }},push-by-digest=true
                   cache-from: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache
-                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest
-                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest-stage
-                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:latest-feature
+                      type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:${{ inputs.image_tag_latest }}
                   cache-to: |
                       type=registry,ref=${{ inputs.registry_host }}/${{ inputs.image_name }}:buildcache,mode=max
                   build-args: |

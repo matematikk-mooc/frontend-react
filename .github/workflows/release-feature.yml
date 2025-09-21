@@ -13,7 +13,8 @@ jobs:
         with:
             registry_host: ${{ vars.PROD_REGISTRY_HOST }}
             registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
-            image_name: ${{ vars.STAGE_IMAGE_NAME }}
+            image_name: ${{ vars.PROD_IMAGE_NAME }}
+            image_tag_latest: 'latest-feature'
         secrets:
             registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
 
@@ -35,7 +36,7 @@ jobs:
             ping_path: '/api/ping/'
             docker_registry: ${{ vars.PROD_REGISTRY_HOST }}
             docker_username: ${{ vars.PROD_REGISTRY_USERNAME }}
-            docker_image: ${{ vars.STAGE_IMAGE_NAME }}
+            docker_image: ${{ vars.PROD_IMAGE_NAME }}
             docker_image_digest: ${{ needs.build-app.outputs.image_digest }}
             app_env: production
             test_username: ${{ vars.PROD_TEST_CANVAS_USERNAME }}
@@ -44,17 +45,3 @@ jobs:
         secrets:
             docker_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
             test_password: ${{ secrets.PROD_TEST_CANVAS_PASSWORD }}
-
-    deploy:
-        name: App
-        needs: [build-app, lint-code, test-chromium]
-        if: ${{ success() }}
-        uses: ./.github/workflows/_deploy-docker.yml
-        with:
-            registry_host: ${{ vars.PROD_REGISTRY_HOST }}
-            registry_username: ${{ vars.PROD_REGISTRY_USERNAME }}
-            image_name: ${{ vars.STAGE_IMAGE_NAME }}
-            image_digest: ${{ needs.build-app.outputs.image_digest }}
-            latest_tag: 'latest-feature'
-        secrets:
-            registry_password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
